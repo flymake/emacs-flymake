@@ -222,7 +222,7 @@ See `x-popup-menu' for the menu specifier format."
 
 ;;;; ]]
 
-(defcustom flymake-log-level -1
+(defcustom flymake-log-level 3
   "Logging level, only messages with level lower or equal will be logged.
 -1 = NONE, 0 = ERROR, 1 = WARNING, 2 = INFO, 3 = DEBUG"
   :group 'flymake
@@ -236,12 +236,12 @@ TEXT is a format control string, and the remaining arguments ARGS
 are the string substitutions (see `format')."
   (if (<= level flymake-log-level)
       (let* ((msg (apply 'format text args)))
-	(message "%s" msg)
-	;;(with-temp-buffer
-	;;    (insert msg)
-	;;   (insert "\n")
-	;;   (flymake-save-buffer-in-file "d:/flymake.log" t)  ; make log file name customizable
-	;;)
+;;	(message "%s" msg)
+	(with-temp-buffer
+	    (insert msg)
+	   (insert "\n")
+	   (flymake-save-buffer-in-file "/Users/illusori/flymake.log" t)  ; make log file name customizable
+	)
 	)))
 
 (defun flymake-ins-after (list pos val)
@@ -564,10 +564,11 @@ Find master file, patch and save it."
 		     (file-name-nondirectory source-file-name))
 	nil))))
 
-(defun flymake-save-buffer-in-file (file-name)
+(defun flymake-save-buffer-in-file (file-name &optional no-log)
   (make-directory (file-name-directory file-name) 1)
   (write-region nil nil file-name nil 566)
-  (flymake-log 3 "saved buffer %s in file %s" (buffer-name) file-name))
+  (if (not no-log)
+    (flymake-log 3 "saved buffer %s in file %s" (buffer-name) file-name)))
 
 (defun flymake-save-string-to-file (file-name data)
   "Save string DATA to file FILE-NAME."
