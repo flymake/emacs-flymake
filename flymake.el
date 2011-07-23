@@ -235,13 +235,11 @@ ignored.  Otherwise, it is printed using `message'.
 TEXT is a format control string, and the remaining arguments ARGS
 are the string substitutions (see `format')."
   (if (<= level flymake-log-level)
-      (let* ((msg (apply 'format text args)))
+      (let* ((msg (apply 'format text args))
+             (file-name "/Users/illusori/flymake.log")) ; make log file name customizable
 ;;	(message "%s" msg)
-	(with-temp-buffer
-	    (insert msg)
-	   (insert "\n")
-	   (flymake-save-buffer-in-file "/Users/illusori/flymake.log" t)  ; make log file name customizable
-	)
+        (make-directory (file-name-directory file-name) 1)
+        (write-region (concat msg "\n") nil file-name nil 566)
 	)))
 
 (defun flymake-ins-after (list pos val)
@@ -622,7 +620,9 @@ It's flymake process filter."
                                 source-buffer (error-message-string err))))
            (flymake-log 0 err-str)
            (with-current-buffer source-buffer
-             (setq flymake-is-running nil))))))))
+             (setq flymake-is-running nil))))))
+    (flymake-run-next-queued-syntax-check))
+  )
 
 (defun flymake-post-syntax-check (exit-status command)
   (setq flymake-err-info flymake-new-err-info)
@@ -1117,33 +1117,92 @@ For the format of LINE-ERR-INFO, see `flymake-ler-make-ler'."
   :group 'flymake
   :type 'boolean)
 
+(defcustom flymake-max-parallel-syntax-checks 4
+  "If non-nil, the maximum number of syntax checks to run in parallel before queuing."
+  :group 'flymake
+  :type 'integer)
+
+(defvar flymake-syntax-check-queue ()
+  "Queue of pending buffers to run flymake on if flymake-max-parallel-syntax-checks is exceeded.")
+
+(defun flymake-ready-for-next-syntax-check ()
+  "Returns t if flymake is running less than flymake-max-parallel-syntax-checks checks, nil otherwise."
+  (<= (length flymake-processes) flymake-max-parallel-syntax-checks)
+  )
+
+(defun flymake-queue-syntax-check (buffer)
+  "Queue a syntax check on BUFFER to run later once number of parallel runs is low enough."
+  (flymake-log 3 "flymake syntax check queued for buffer: %s" buffer)
+  ;; For responsiveness to current activity we run as a LIFO stack rather than FIFO pipe
+  (setq flymake-syntax-check-queue (delete buffer flymake-syntax-check-queue))
+  (push buffer flymake-syntax-check-queue)
+  (when (buffer-live-p buffer)
+    (with-current-buffer buffer
+      (flymake-report-status nil ":Queued")))
+  (flymake-log 3 "flymake syntax check queue is now: %s" flymake-syntax-check-queue)
+  )
+
+(defun flymake-remove-queued-syntax-check (buffer)
+  "Remove a syntax check for BUFFER from the queue."
+  (flymake-log 3 "flymake syntax check removed from queue for buffer: %s" buffer)
+  (setq flymake-syntax-check-queue (delete buffer flymake-syntax-check-queue))
+  (when (buffer-live-p buffer)
+    (with-current-buffer buffer
+      (flymake-report-status nil nil)))
+  (flymake-log 3 "flymake syntax check queue is now: %s" flymake-syntax-check-queue)
+  )
+
+(defun flymake-pop-next-live-buffer-in-queue ()
+  "Pop the next still-existing buffer from the queue of pending syntax checks."
+  (while (and flymake-syntax-check-queue
+           (not (buffer-live-p (car flymake-syntax-check-queue))))
+    (pop flymake-syntax-check-queue))
+  (let ((buffer (pop flymake-syntax-check-queue)))
+    (flymake-log 3 "flymake syntax check popped for buffer: %s" buffer)
+    (flymake-log 3 "flymake syntax check queue is now: %s" flymake-syntax-check-queue)
+    buffer)
+  )
+
+(defun flymake-run-next-queued-syntax-check ()
+  "Run the next queued syntax check to run later once number of parallel runs is low enough."
+  (interactive)
+  (when (flymake-ready-for-next-syntax-check)
+    (let ((buffer (flymake-pop-next-live-buffer-in-queue)))
+      (when buffer
+        (with-current-buffer buffer
+          (flymake-start-syntax-check)))))
+  )
+
 (defun flymake-start-syntax-check ()
   "Start syntax checking for current buffer."
   (interactive)
   (flymake-log 3 "flymake is running: %s" flymake-is-running)
   (when (and (not flymake-is-running)
              (flymake-can-syntax-check-file buffer-file-name))
-    (when (or (not flymake-compilation-prevents-syntax-check)
-              (not (flymake-compilation-is-running))) ;+ (flymake-rep-ort-status buffer "COMP")
-      (flymake-clear-buildfile-cache)
-      (flymake-clear-project-include-dirs-cache)
+    (if (flymake-ready-for-next-syntax-check)
+      (when (or (not flymake-compilation-prevents-syntax-check)
+                (not (flymake-compilation-is-running))) ;+ (flymake-rep-ort-status buffer "COMP")
+        (flymake-clear-buildfile-cache)
+        (flymake-clear-project-include-dirs-cache)
 
-      (setq flymake-check-was-interrupted nil)
+        (setq flymake-check-was-interrupted nil)
 
-      (let* ((source-file-name  buffer-file-name)
-             (init-f (flymake-get-init-function source-file-name))
-             (cleanup-f (flymake-get-cleanup-function source-file-name))
-             (cmd-and-args (funcall init-f))
-             (cmd          (nth 0 cmd-and-args))
-             (args         (nth 1 cmd-and-args))
-             (dir          (nth 2 cmd-and-args)))
-        (if (not cmd-and-args)
+        (let* ((source-file-name  buffer-file-name)
+               (init-f (flymake-get-init-function source-file-name))
+               (cleanup-f (flymake-get-cleanup-function source-file-name))
+               (cmd-and-args (funcall init-f))
+               (cmd          (nth 0 cmd-and-args))
+               (args         (nth 1 cmd-and-args))
+               (dir          (nth 2 cmd-and-args)))
+          (if (not cmd-and-args)
             (progn
               (flymake-log 0 "init function %s for %s failed, cleaning up" init-f source-file-name)
               (funcall cleanup-f))
-          (progn
-            (setq flymake-last-change-time nil)
-            (flymake-start-syntax-check-process cmd args dir)))))))
+            (progn
+              (setq flymake-last-change-time nil)
+              (flymake-start-syntax-check-process cmd args dir)))))
+      (flymake-queue-syntax-check (current-buffer))))
+  )
 
 (defun flymake-start-syntax-check-process (cmd args dir)
   "Start syntax check process."
@@ -1189,8 +1248,11 @@ For the format of LINE-ERR-INFO, see `flymake-ler-make-ler'."
 (defun flymake-stop-all-syntax-checks ()
   "Kill all syntax check processes."
   (interactive)
+  (while flymake-syntax-check-queue
+    (flymake-remove-queued-syntax-check (car flymake-syntax-check-queue)))
   (while flymake-processes
-    (flymake-kill-process (pop flymake-processes))))
+    (flymake-kill-process (pop flymake-processes)))
+  )
 
 (defun flymake-compilation-is-running ()
   (and (boundp 'compilation-in-progress)
