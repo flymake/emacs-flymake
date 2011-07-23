@@ -59,3 +59,4 @@ Other Bug Fixes
 
  * Logging no longer errors.
  * Log files are now proper logs rather than last-message-only.
+ * You can customize where the log is created with flymake-log-file-name.
