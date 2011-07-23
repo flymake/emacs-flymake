@@ -1,0 +1,61 @@
+emacs-flymake
+=============
+
+This project is a fork of Pavel Kobyakov's excellent flymake.el to let me
+play around with some updates before contributing them upstream.
+
+Features added so far:
+
+ * Support for queuing up syntax checks once a certain number are in-progress.
+ * Support for placing temporary files in the system temporary directory.
+ * Minor other bug fixes.
+
+Queued Syntax Checks
+--------------------
+
+If you use desktop.el with hundreds of buffers open you've probably had
+problems when you restart emacs with flymake running: it'll try to run
+a syntax check on everything at once.
+
+Now there's a limit of 4 syntax checks running at once, any more that
+are attempted go on a queue that will empty as one of the 4 slots frees
+up.
+
+You can customize the number of parallel checks that run, or turn off
+the limit entirely with the 'flymake-max-parallel-syntax-checks' variable.
+
+```elisp
+;; Let's run 8 checks at once instead.
+(setq flymake-max-parallel-syntax-checks 8)
+
+;; I don't want no steekin' limits.
+(setq flymake-max-parallel-syntax-checks nil)
+```
+
+Use The System Temporary Directory For Temp Files
+-------------------------------------------------
+
+By default Flymake creates a temporary copy of the file being inspected
+in the same directory as the original file. This is helpful if you're
+using relative pathnames for includes, but not so helpful if you have
+something in your environment that's triggered by file changes in your
+project directory (continuous integration, webserver restarts, etc).
+
+Now you can toggle between the two behaviours with the
+'flymake-run-in-place' variable.
+
+```elisp
+;; Yes, I want my copies in the same dir as the original.
+(setq flymake-run-in-place t)
+
+;; Nope, I want my copies in the system temp dir.
+(setq flymake-run-in-place nil)
+;; This lets me say where my temp dir is.
+(setq temporary-file-directory "~/.emacs.d/tmp/")
+```
+
+Other Bug Fixes
+---------------
+
+ * Logging no longer errors.
+ * Log files are now proper logs rather than last-message-only.
