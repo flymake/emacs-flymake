@@ -24,7 +24,7 @@ up.
 You can customize the number of parallel checks that run, or turn off
 the limit entirely with the 'flymake-max-parallel-syntax-checks' variable.
 
-```emacs lisp
+```lisp
 ;; Let's run 8 checks at once instead.
 (setq flymake-max-parallel-syntax-checks 8)
 
@@ -44,7 +44,7 @@ project directory (continuous integration, webserver restarts, etc).
 Now you can toggle between the two behaviours with the
 'flymake-run-in-place' variable.
 
-```emacs lisp
+```lisp
 ;; Yes, I want my copies in the same dir as the original.
 (setq flymake-run-in-place t)
 
