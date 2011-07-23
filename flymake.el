@@ -222,7 +222,7 @@ See `x-popup-menu' for the menu specifier format."
 
 ;;;; ]]
 
-(defcustom flymake-log-level 3
+(defcustom flymake-log-level 0
   "Logging level, only messages with level lower or equal will be logged.
 -1 = NONE, 0 = ERROR, 1 = WARNING, 2 = INFO, 3 = DEBUG"
   :group 'flymake
