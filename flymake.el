@@ -1127,7 +1127,8 @@ For the format of LINE-ERR-INFO, see `flymake-ler-make-ler'."
 
 (defun flymake-ready-for-next-syntax-check ()
   "Returns t if flymake is running less than flymake-max-parallel-syntax-checks checks, nil otherwise."
-  (<= (length flymake-processes) flymake-max-parallel-syntax-checks)
+  (or (not flymake-max-parallel-syntax-checks)
+      (<= (length flymake-processes) flymake-max-parallel-syntax-checks))
   )
 
 (defun flymake-queue-syntax-check (buffer)
@@ -1542,6 +1543,25 @@ With arg, turn Flymake mode on if and only if arg is positive."
     string))
 
 ;;;; general init-cleanup and helper routines
+(defcustom flymake-run-in-place t
+  "If nil, flymake will run on copies in `temporary-file-directory' rather than the same directory as the original file.
+
+   If the file makes use of relative include paths it's quite possible that setting this to nil
+   will cause compilation errors. On the other hand, leaving it set to t will trigger any
+   automated file creation detection that is watching your project directory. YMMV."
+  :group 'flymake
+  :type 'boolean)
+
+(defun flymake-create-temp-copy (file-name prefix)
+  "Make a temporary copy of FILE-NAME.
+
+   If `flymake-run-in-place' is true it will use `flymake-create-temp-inplace',
+   otherwise it will use `flymake-create-temp-intemp'."
+  (if flymake-run-in-place
+    (flymake-create-temp-inplace file-name prefix)
+    (flymake-create-temp-intemp file-name prefix))
+  )
+
 (defun flymake-create-temp-inplace (file-name prefix)
   (unless (stringp file-name)
     (error "Invalid file-name"))
@@ -1553,6 +1573,37 @@ With arg, turn Flymake mode on if and only if arg is positive."
 				   (concat "." (file-name-extension file-name))))))
     (flymake-log 3 "create-temp-inplace: file=%s temp=%s" file-name temp-name)
     temp-name))
+
+;; This was lifted from various blogs, I'm not sure who the original
+;; author was - whoever it was: thank you!
+;; I got it from http://blog.urth.org/2011/06/flymake-versus-the-catalyst-restarter.html
+;; but Dave Rolsky indicates he got it from elsewhere.
+(defun flymake-create-temp-intemp (file-name prefix)
+    "Return filename in temporary directory for checking
+     FILE-NAME. This is a replacement for
+     `flymake-create-temp-inplace'. The difference is that it gives
+     a file name in `temporary-file-directory' instead of the same
+     directory as FILE-NAME.
+
+     For the use of PREFIX see that function.
+
+     Note that not making the temporary file in another directory
+     \(like here) will not work if the file you are checking depends
+     relative paths to other files \(for the type of checks flymake
+     makes)."
+    (unless (stringp file-name)
+      (error "Invalid file-name"))
+    (or prefix
+      (setq prefix "flymake"))
+    (let* ((name (concat
+                  (file-name-nondirectory
+                   (file-name-sans-extension file-name))
+                  "_" prefix))
+           (ext  (concat "." (file-name-extension file-name)))
+           (temp-name (make-temp-file name nil ext))
+           )
+      (flymake-log 3 "create-temp-intemp: file=%s temp=%s" file-name temp-name)
+      temp-name))
 
 (defun flymake-create-temp-with-folder-structure (file-name prefix)
   (unless (stringp file-name)
@@ -1745,13 +1796,13 @@ Use CREATE-TEMP-F for creating temp copy."
     args))
 
 (defun flymake-simple-make-init ()
-  (flymake-simple-make-init-impl 'flymake-create-temp-inplace t t "Makefile" 'flymake-get-make-cmdline))
+  (flymake-simple-make-init-impl 'flymake-create-temp-copy t t "Makefile" 'flymake-get-make-cmdline))
 
 (defun flymake-master-make-init (get-incl-dirs-f master-file-masks include-regexp)
   "Create make command line for a source file checked via master file compilation."
   (let* ((make-args nil)
 	 (temp-master-file-name (flymake-init-create-temp-source-and-master-buffer-copy
-                                 get-incl-dirs-f 'flymake-create-temp-inplace
+                                 get-incl-dirs-f 'flymake-create-temp-copy
 				 master-file-masks include-regexp)))
     (when temp-master-file-name
       (let* ((buildfile-dir (flymake-init-find-buildfile-dir temp-master-file-name "Makefile")))
@@ -1787,7 +1838,7 @@ Use CREATE-TEMP-F for creating temp copy."
 ;;;; perl-specific init-cleanup routines
 (defun flymake-perl-init ()
   (let* ((temp-file   (flymake-init-create-temp-buffer-copy
-                       'flymake-create-temp-inplace))
+                       'flymake-create-temp-copy))
 	 (local-file  (file-relative-name
                        temp-file
                        (file-name-directory buffer-file-name))))
@@ -1796,7 +1847,7 @@ Use CREATE-TEMP-F for creating temp copy."
 ;;;; php-specific init-cleanup routines
 (defun flymake-php-init ()
   (let* ((temp-file   (flymake-init-create-temp-buffer-copy
-                       'flymake-create-temp-inplace))
+                       'flymake-create-temp-copy))
 	 (local-file  (file-relative-name
                        temp-file
                        (file-name-directory buffer-file-name))))
@@ -1808,11 +1859,11 @@ Use CREATE-TEMP-F for creating temp copy."
   (list "texify" (list "--pdf" "--tex-option=-c-style-errors" file-name)))
 
 (defun flymake-simple-tex-init ()
-  (flymake-get-tex-args (flymake-init-create-temp-buffer-copy 'flymake-create-temp-inplace)))
+  (flymake-get-tex-args (flymake-init-create-temp-buffer-copy 'flymake-create-temp-copy)))
 
 (defun flymake-master-tex-init ()
   (let* ((temp-master-file-name (flymake-init-create-temp-source-and-master-buffer-copy
-                                 'flymake-get-include-dirs-dot 'flymake-create-temp-inplace
+                                 'flymake-get-include-dirs-dot 'flymake-create-temp-copy
 				 '("\\.tex\\'")
 				 "[ \t]*\\input[ \t]*{\\(.*%s\\)}")))
     (when temp-master-file-name
@@ -1823,7 +1874,7 @@ Use CREATE-TEMP-F for creating temp copy."
 
 ;;;; xml-specific init-cleanup routines
 (defun flymake-xml-init ()
-  (list "xml" (list "val" (flymake-init-create-temp-buffer-copy 'flymake-create-temp-inplace))))
+  (list "xml" (list "val" (flymake-init-create-temp-buffer-copy 'flymake-create-temp-copy))))
 
 (provide 'flymake)
 
