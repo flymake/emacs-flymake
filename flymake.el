@@ -248,7 +248,7 @@ are the string substitutions (see `format')."
       (let* ((msg (apply 'format text args)))
 ;;	(message "%s" msg)
         (make-directory (file-name-directory flymake-log-file-name) 1)
-        (write-region (concat msg "\n") nil flymake-log-file-name nil 566)
+        (write-region (concat msg "\n") nil flymake-log-file-name t 566)
 	)))
 
 (defun flymake-ins-after (list pos val)
