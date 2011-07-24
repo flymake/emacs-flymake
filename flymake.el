@@ -238,6 +238,11 @@ See `x-popup-menu' for the menu specifier format."
   :group 'flymake
   :type 'string)
 
+(defun flymake-enquote-log-string (string)
+  "Prepends > on each line of STRING."
+  (concat "\n  > " (replace-regexp-in-string "\n" "\n  > " string t t))
+  )
+
 (defun flymake-log (level text &rest args)
   "Log a message at level LEVEL.
 If LEVEL is higher than `flymake-log-level', the message is
@@ -245,11 +250,18 @@ ignored.  Otherwise, it is printed using `message'.
 TEXT is a format control string, and the remaining arguments ARGS
 are the string substitutions (see `format')."
   (if (<= level flymake-log-level)
-      (let* ((msg (apply 'format text args)))
-;;	(message "%s" msg)
-        (make-directory (file-name-directory flymake-log-file-name) 1)
-        (write-region (concat msg "\n") nil flymake-log-file-name t 566)
-	)))
+    (let* ((msg (apply 'format text args))
+           ;; Surely there's a better way to do this?
+           (time (current-time))
+           (timestamp (concat (format-time-string "%Y-%m-%d %T" time)
+                              "."
+                              (format "%06d" (third time))))
+          )
+;;      (message "%s" msg)
+      (make-directory (file-name-directory flymake-log-file-name) 1)
+      (write-region (concat "[" timestamp "] " msg "\n") nil flymake-log-file-name t 566)
+      ))
+  )
 
 (defun flymake-ins-after (list pos val)
   "Insert VAL into LIST after position POS."
@@ -660,6 +672,7 @@ It's flymake process filter."
 
 (defun flymake-parse-output-and-residual (output)
   "Split OUTPUT into lines, merge in residual if necessary."
+  (flymake-log 3 "received process output: %s" (flymake-enquote-log-string output))
   (let* ((buffer-residual     flymake-output-residual)
          (total-output        (if buffer-residual (concat buffer-residual output) output))
          (lines-and-residual  (flymake-split-output total-output))
