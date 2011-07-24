@@ -1137,7 +1137,7 @@ For the format of LINE-ERR-INFO, see `flymake-ler-make-ler'."
 (defun flymake-ready-for-next-syntax-check ()
   "Returns t if flymake is running less than flymake-max-parallel-syntax-checks checks, nil otherwise."
   (or (not flymake-max-parallel-syntax-checks)
-      (<= (length flymake-processes) flymake-max-parallel-syntax-checks))
+      (< (length flymake-processes) flymake-max-parallel-syntax-checks))
   )
 
 (defun flymake-queue-syntax-check (buffer)
