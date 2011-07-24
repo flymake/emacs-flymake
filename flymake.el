@@ -1296,13 +1296,15 @@ For the format of LINE-ERR-INFO, see `flymake-ler-make-ler'."
 
 (defun flymake-on-timer-event ()
   "Start a syntax check for current buffer if necessary."
-  (when (and (not flymake-is-running)
+  (when (and flymake-mode
+             (not flymake-is-running)
              flymake-last-change-time
              (> (- (flymake-float-time) flymake-last-change-time)
                 flymake-no-changes-timeout))
 
     (setq flymake-last-change-time nil)
-    (flymake-log 3 "starting syntax check as more than 1 second passed since last change")
+    (flymake-log 3 "starting syntax check as more than %f second(s) passed since last change"
+      flymake-no-changes-timeout)
     (flymake-start-syntax-check))
   )
 
