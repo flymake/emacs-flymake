@@ -8,6 +8,7 @@ Features added so far:
 
  * Support for queuing up syntax checks once a certain number are in-progress.
  * Support for placing temporary files in the system temporary directory.
+ * Spawns only one buffer-modification timer check rather than one per buffer.
  * Minor other bug fixes.
 
 Queued Syntax Checks
@@ -54,9 +55,27 @@ Now you can toggle between the two behaviours with the
 (setq temporary-file-directory "~/.emacs.d/tmp/")
 ```
 
+One Buffer Modification Timer Check
+-----------------------------------
+
+Again, if you have multiple hundreds of buffers open, original Flymake would
+start thrashing your CPU trying to keep up with 1-second timer looking for
+modifications for every buffer, my laptop would have emacs sat at 60-90% CPU
+doing nothing but try to check for whether buffers had been modified.
+
+Now only a single timer is spawned, it still runs once per second but only
+looks for changes in the current buffer.
+
+This is much more CPU-friendly but also means that if you quickly switch away
+from a buffer after making changes, the syntax check may not be run until you
+return to the buffer. (The last-modified value is still retained per-buffer
+so the changes will still be detected once you return for long enough for the
+1-second timer to happen.)
+
 Other Bug Fixes
 ---------------
 
  * Logging no longer errors.
  * Log files are now proper logs rather than last-message-only.
+ * Log files now have timestamps to help debugging where time is going.
  * You can customize where the log is created with flymake-log-file-name.
