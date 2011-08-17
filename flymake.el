@@ -242,7 +242,7 @@ See `x-popup-menu' for the menu specifier format."
 
 (defun flymake-enquote-log-string (string)
   "Prepends > on each line of STRING."
-  (concat "\n  > " (replace-regexp-in-string "\n" "\n  > " string t t))
+  (concat "\n  > " (flymake-replace-regexp-in-string "\n" "\n  > " string t t))
   )
 
 (defun flymake-log (level text &rest args)
@@ -647,6 +647,11 @@ It's flymake process filter."
     (flymake-run-next-queued-syntax-check))
   )
 
+(defcustom flymake-after-syntax-check-hook '()
+  "Hook run each time Flymake completes a syntax check and updates its list of errors."
+  :type 'hook
+  :group 'flymake)
+
 (defun flymake-post-syntax-check (exit-status command)
   (setq flymake-err-info flymake-new-err-info)
   (setq flymake-new-err-info nil)
@@ -670,7 +675,8 @@ It's flymake process filter."
               (flymake-report-fatal-status "CFGERR"
                                            (format "Configuration error has occurred while running %s" command))
             (flymake-report-status nil ""))) ; "STOPPED"
-      (flymake-report-status (format "%d/%d" err-count warn-count) ""))))
+      (flymake-report-status (format "%d/%d" err-count warn-count) "")))
+  (run-hooks 'flymake-after-syntax-check-hook))
 
 (defun flymake-parse-output-and-residual (output)
   "Split OUTPUT into lines, merge in residual if necessary."
@@ -1199,7 +1205,8 @@ For the format of LINE-ERR-INFO, see `flymake-ler-make-ler'."
   )
 
 (defun flymake-start-syntax-check ()
-  "Start syntax checking for current buffer."
+  "Start syntax checking for current buffer. Once the syntax checking is
+complete the `flymake-after-syntax-check-hook' hook will be run."
   (interactive)
   (flymake-log 3 "flymake is running: %s" flymake-is-running)
   (when (and (not flymake-is-running)
@@ -1544,14 +1551,23 @@ With arg, turn Flymake mode on if and only if arg is positive."
   (while (looking-at "[ \t]")
     (forward-char)))
 
+(defcustom flymake-goto-line-hook '()
+  "Hook run each time `flymake-goto-line' is run, which is called by
+`flymake-goto-next-error' and `flymake-goto-prev-error'."
+  :type 'hook
+  :group 'flymake)
+
 (defun flymake-goto-line (line-no)
-  "Go to line LINE-NO, then skip whitespace."
+  "Go to line LINE-NO, then skip whitespace.
+The hook `flymake-goto-line-hook' is run after moving to the new position."
   (goto-char (point-min))
   (forward-line (1- line-no))
-  (flymake-skip-whitespace))
+  (flymake-skip-whitespace)
+  (run-hooks 'flymake-goto-line-hook))
 
 (defun flymake-goto-next-error ()
-  "Go to next error in err ring."
+  "Go to next error in error ring.
+The hook `flymake-goto-line-hook' is run after moving to the new position."
   (interactive)
   (let ((line-no (flymake-get-next-err-line-no flymake-err-info (flymake-current-line-no))))
     (when (not line-no)
@@ -1562,7 +1578,8 @@ With arg, turn Flymake mode on if and only if arg is positive."
       (flymake-log 1 "no errors in current buffer"))))
 
 (defun flymake-goto-prev-error ()
-  "Go to previous error in err ring."
+  "Go to previous error in errror ring.
+The hook `flymake-goto-line-hook' is run after moving to the new position."
   (interactive)
   (let ((line-no (flymake-get-prev-err-line-no flymake-err-info (flymake-current-line-no))))
     (when (not line-no)
