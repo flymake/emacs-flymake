@@ -69,6 +69,61 @@
   "Same as `flymake-err-info', effective when a syntax check is in progress.")
 (make-variable-buffer-local 'flymake-new-err-info)
 
+(defcustom flymake-start-syntax-check-on-find-file t
+  "Start syntax check on find file."
+  :group 'flymake
+  :type 'boolean)
+
+;;;###autoload
+(define-minor-mode flymake-mode
+  "Minor mode to do on-the-fly syntax checking.
+When called interactively, toggles the minor mode.
+With arg, turn Flymake mode on if and only if arg is positive."
+  :group 'flymake :lighter flymake-mode-line
+  (cond
+
+    ;; Turning the mode ON.
+    (flymake-mode
+      (if (not (flymake-can-syntax-check-file buffer-file-name))
+        (flymake-log 2 "flymake cannot check syntax in buffer %s" (buffer-name))
+
+        (setq flymake-buffers (+ flymake-buffers 1))
+        (add-hook 'after-change-functions 'flymake-after-change-function nil t)
+        (add-hook 'after-save-hook 'flymake-after-save-hook nil t)
+        (add-hook 'kill-buffer-hook 'flymake-kill-buffer-hook nil t)
+        ;;+(add-hook 'find-file-hook 'flymake-find-file-hook)
+
+        (flymake-report-status "" "")
+
+        (when (and (> flymake-buffers 0)
+                   (not flymake-timer))
+          (setq flymake-timer (run-at-time nil 1 'flymake-on-timer-event)))
+
+        (when flymake-start-syntax-check-on-find-file
+          (flymake-start-syntax-check)))
+      )
+
+    ;; Turning the mode OFF.
+    (t
+      (remove-hook 'after-change-functions 'flymake-after-change-function t)
+      (remove-hook 'after-save-hook 'flymake-after-save-hook t)
+      (remove-hook 'kill-buffer-hook 'flymake-kill-buffer-hook t)
+      ;;+(remove-hook 'find-file-hook (function flymake-find-file-hook) t)
+
+      (flymake-delete-own-overlays)
+
+      (setq flymake-buffers (- flymake-buffers 1))
+
+      (when (and (<= flymake-buffers 0)
+                 flymake-timer)
+        (cancel-timer flymake-timer)
+        (setq flymake-timer nil))
+
+      (setq flymake-is-running nil)
+      )
+    )
+  )
+
 ;;;; [[ cross-emacs compatibility routines
 (defsubst flymake-makehash (&optional test)
   (if (fboundp 'make-hash-table)
@@ -1414,61 +1469,6 @@ complete the `flymake-after-syntax-check-hook' hook will be run."
   (flymake-mode 0)
   (flymake-log 0 "switched OFF Flymake mode for buffer %s due to fatal status %s, warning %s"
                (buffer-name) status warning))
-
-(defcustom flymake-start-syntax-check-on-find-file t
-  "Start syntax check on find file."
-  :group 'flymake
-  :type 'boolean)
-
-;;;###autoload
-(define-minor-mode flymake-mode
-  "Minor mode to do on-the-fly syntax checking.
-When called interactively, toggles the minor mode.
-With arg, turn Flymake mode on if and only if arg is positive."
-  :group 'flymake :lighter flymake-mode-line
-  (cond
-
-    ;; Turning the mode ON.
-    (flymake-mode
-      (if (not (flymake-can-syntax-check-file buffer-file-name))
-        (flymake-log 2 "flymake cannot check syntax in buffer %s" (buffer-name))
-
-        (setq flymake-buffers (+ flymake-buffers 1))
-        (add-hook 'after-change-functions 'flymake-after-change-function nil t)
-        (add-hook 'after-save-hook 'flymake-after-save-hook nil t)
-        (add-hook 'kill-buffer-hook 'flymake-kill-buffer-hook nil t)
-        ;;+(add-hook 'find-file-hook 'flymake-find-file-hook)
-
-        (flymake-report-status "" "")
-
-        (when (and (> flymake-buffers 0)
-                   (not flymake-timer))
-          (setq flymake-timer (run-at-time nil 1 'flymake-on-timer-event)))
-
-        (when flymake-start-syntax-check-on-find-file
-          (flymake-start-syntax-check)))
-      )
-
-    ;; Turning the mode OFF.
-    (t
-      (remove-hook 'after-change-functions 'flymake-after-change-function t)
-      (remove-hook 'after-save-hook 'flymake-after-save-hook t)
-      (remove-hook 'kill-buffer-hook 'flymake-kill-buffer-hook t)
-      ;;+(remove-hook 'find-file-hook (function flymake-find-file-hook) t)
-
-      (flymake-delete-own-overlays)
-
-      (setq flymake-buffers (- flymake-buffers 1))
-
-      (when (and (<= flymake-buffers 0)
-                 flymake-timer)
-        (cancel-timer flymake-timer)
-        (setq flymake-timer nil))
-
-      (setq flymake-is-running nil)
-      )
-    )
-  )
 
 ;;;###autoload
 (defun flymake-mode-on ()
