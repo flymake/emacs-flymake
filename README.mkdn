@@ -79,3 +79,5 @@ Other Bug Fixes
  * Log files are now proper logs rather than last-message-only.
  * Log files now have timestamps to help debugging where time is going.
  * You can customize where the log is created with flymake-log-file-name.
+ * Provides hooks so that flymake-cursor doesn't need to wrap our functions.
+ * Compile is now clean without warnings.
