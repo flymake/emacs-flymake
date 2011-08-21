@@ -1551,23 +1551,23 @@ complete the `flymake-after-syntax-check-hook' hook will be run."
   (while (looking-at "[ \t]")
     (forward-char)))
 
-(defcustom flymake-goto-line-hook '()
-  "Hook run each time `flymake-goto-line' is run, which is called by
-`flymake-goto-next-error' and `flymake-goto-prev-error'."
+(defcustom flymake-goto-error-hook '()
+  "Hook run each time `flymake-goto-next-error' and `flymake-goto-prev-error'
+are called."
   :type 'hook
   :group 'flymake)
 
 (defun flymake-goto-line (line-no)
   "Go to line LINE-NO, then skip whitespace.
-The hook `flymake-goto-line-hook' is run after moving to the new position."
+The hook `flymake-goto-error-hook' is run after moving to the new position."
   (goto-char (point-min))
   (forward-line (1- line-no))
   (flymake-skip-whitespace)
-  (run-hooks 'flymake-goto-line-hook))
+  (run-hooks 'flymake-goto-error-hook))
 
 (defun flymake-goto-next-error ()
   "Go to next error in error ring.
-The hook `flymake-goto-line-hook' is run after moving to the new position."
+The hook `flymake-goto-error-hook' is run after moving to the new position."
   (interactive)
   (let ((line-no (flymake-get-next-err-line-no flymake-err-info (flymake-current-line-no))))
     (when (not line-no)
@@ -1579,7 +1579,7 @@ The hook `flymake-goto-line-hook' is run after moving to the new position."
 
 (defun flymake-goto-prev-error ()
   "Go to previous error in errror ring.
-The hook `flymake-goto-line-hook' is run after moving to the new position."
+The hook `flymake-goto-error-hook' is run after moving to the new position."
   (interactive)
   (let ((line-no (flymake-get-prev-err-line-no flymake-err-info (flymake-current-line-no))))
     (when (not line-no)
