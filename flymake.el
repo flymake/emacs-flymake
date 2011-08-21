@@ -1557,12 +1557,19 @@ are called."
   :type 'hook
   :group 'flymake)
 
+(defcustom flymake-goto-error-skip-whitespace t
+  "Whether to skip leading whitespace on the line when using
+`flymake-goto-next-error' and `flymake-goto-prev-error'."
+  :type 'boolean
+  :group 'flymake)
+
 (defun flymake-goto-line (line-no)
   "Go to line LINE-NO, then skip whitespace.
 The hook `flymake-goto-error-hook' is run after moving to the new position."
   (goto-char (point-min))
   (forward-line (1- line-no))
-  (flymake-skip-whitespace)
+  (if flymake-goto-error-skip-whitespace
+    (flymake-skip-whitespace))
   (run-hooks 'flymake-goto-error-hook))
 
 (defun flymake-goto-next-error ()
