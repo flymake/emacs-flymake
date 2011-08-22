@@ -854,7 +854,7 @@ line number outside the file being compiled."
       (overlay-put ov 'priority 100)
       ;;+(flymake-log 3 "created overlay %s" ov)
       ov)
-    (flymake-log 3 "created an overlay at (%d-%d)" beg end)))
+    (flymake-log 3 "created an overlay at (%d-%d) with face %s" beg end face)))
 
 (defun flymake-delete-own-overlays ()
   "Delete all flymake overlays in BUFFER."
