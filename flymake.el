@@ -1936,7 +1936,7 @@ Use CREATE-TEMP-F for creating temp copy."
 
 ;;;; xml-specific init-cleanup routines
 (defun flymake-xml-init ()
-  (list "xml" (list "val" (flymake-init-create-temp-buffer-copy 'flymake-create-temp-copy))))
+  (list "xmlstarlet" (list "val" (flymake-init-create-temp-buffer-copy 'flymake-create-temp-copy))))
 
 (provide 'flymake)
 
