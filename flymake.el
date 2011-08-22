@@ -1855,7 +1855,8 @@ Use CREATE-TEMP-F for creating temp copy."
     args))
 
 (defun flymake-simple-make-init ()
-  (flymake-simple-make-init-impl 'flymake-create-temp-copy t t "Makefile" 'flymake-get-make-cmdline))
+  (flymake-simple-make-init-impl 'flymake-create-temp-copy
+    flymake-run-in-place t "Makefile" 'flymake-get-make-cmdline))
 
 (defun flymake-master-make-init (get-incl-dirs-f master-file-masks include-regexp)
   "Create make command line for a source file checked via master file compilation."
