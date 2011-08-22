@@ -640,11 +640,10 @@ Find master file, patch and save it."
                      (file-name-nondirectory source-file-name))
         nil))))
 
-(defun flymake-save-buffer-in-file (file-name &optional no-log)
+(defun flymake-save-buffer-in-file (file-name)
   (make-directory (file-name-directory file-name) 1)
   (write-region nil nil file-name nil 566)
-  (if (not no-log)
-    (flymake-log 3 "saved buffer %s in file %s" (buffer-name) file-name)))
+  (flymake-log 3 "saved buffer %s in file %s" (buffer-name) file-name))
 
 (defun flymake-save-string-to-file (file-name data)
   "Save string DATA to file FILE-NAME."
