@@ -1,10 +1,10 @@
-;;; flymake.el -- a universal on-the-fly syntax checker
+;;; flymake.el --- a universal on-the-fly syntax checker
 
 ;; Copyright (C) 2003-2011  Free Software Foundation, Inc.
 
 ;; Author:  Pavel Kobyakov <pk_at_work@yahoo.com>
-;; Maintainer: Pavel Kobyakov <pk_at_work@yahoo.com>
-;; Version: 0.3
+;; Maintainer: Sam Graham <libflymake-emacs BLAHBLAH illusori.co.uk>
+;; Version: 0.4
 ;; Keywords: c languages tools
 
 ;; This file is part of GNU Emacs.
