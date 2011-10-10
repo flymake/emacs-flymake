@@ -4,7 +4,7 @@
 
 ;; Author:  Pavel Kobyakov <pk_at_work@yahoo.com>
 ;; Maintainer: Sam Graham <libflymake-emacs BLAHBLAH illusori.co.uk>
-;; Version: 0.4
+;; Version: 0.4.1
 ;; Keywords: c languages tools
 
 ;; This file is part of GNU Emacs.
@@ -1887,12 +1887,31 @@ Use CREATE-TEMP-F for creating temp copy."
      (file-name-directory flymake-temp-source-file-name))))
 
 ;;;; perl-specific init-cleanup routines
+(defun flymake-perlbrew-path-sync ()
+  "Sync $PATH in the environment of the current Emacs process with modifications
+made by perlbrew in other shell processes."
+  (when (getenv "PERLBREW_ROOT")
+    ;; This is pretty ugly, we need to run a bash intepreter, source
+    ;; the perlbrew path hacking, then echo the modified path.
+    ;; The antics with PATH=... is to try to make sure we don't trash
+    ;; $PATH in the event that the command errors for some reason - don't
+    ;; want our path set to the error message.
+    (let ((raw-modified-path (shell-command-to-string (concat "bash -c '. " (getenv "PERLBREW_ROOT") "/etc/bashrc;echo \"PATH=$PATH\"'"))))
+      (string-match "PATH=\\(.+\\)$" raw-modified-path)
+      (let ((modified-path (match-string 1 raw-modified-path)))
+        (if modified-path
+          (progn
+            (flymake-log 2 "Updating $PATH to match perlbrew $PATH: \"%s\"" modified-path)
+            (setenv "PATH" modified-path))
+          (flymake-log 1 "Unable to parse perlbrew $PATH output \"%s\"" raw-modified-path))))))
+
 (defun flymake-perl-init ()
   (let* ((temp-file   (flymake-init-create-temp-buffer-copy
                        'flymake-create-temp-copy))
          (local-file  (file-relative-name
                        temp-file
                        (file-name-directory buffer-file-name))))
+    (flymake-perlbrew-path-sync)
     (list "perl" (list "-wc " local-file))))
 
 ;;;; php-specific init-cleanup routines
