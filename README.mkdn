@@ -81,3 +81,4 @@ Other Bug Fixes
  * You can customize where the log is created with flymake-log-file-name.
  * Provides hooks so that flymake-cursor doesn't need to wrap our functions.
  * Compile is now clean without warnings.
+ * Support for invoking correct perl under perlbrew multiple-installs.
