@@ -4,7 +4,7 @@
 
 ;; Author:  Pavel Kobyakov <pk_at_work@yahoo.com>
 ;; Maintainer: Sam Graham <libflymake-emacs BLAHBLAH illusori.co.uk>
-;; Version: 0.4.1
+;; Version: 0.4.2
 ;; Keywords: c languages tools
 
 ;; This file is part of GNU Emacs.
@@ -888,11 +888,22 @@ Return t if it has at least one flymake overlay, nil if no overlay."
   "Face used for marking warning lines."
   :group 'flymake)
 
+(defcustom flymake-number-of-errors-to-display 1
+  "Number of flymake errors to display in the tooltip if there are more than one.
+
+If set to nil, all errors for the line will be displayed."
+  :group 'flymake
+  :type '(choice integer (const nil)))
+
 (defun flymake-highlight-line (line-no line-err-info-list)
   "Highlight line LINE-NO in current buffer.
 Perhaps use text from LINE-ERR-INFO-LIST to enhance highlighting."
   (goto-char (point-min))
   (forward-line (1- line-no))
+  (when (and flymake-number-of-errors-to-display
+             (> (length line-err-info-list) flymake-number-of-errors-to-display))
+    (setq line-err-info-list (copy-sequence line-err-info-list))
+    (setcdr (nthcdr (- flymake-number-of-errors-to-display 1) line-err-info-list) nil))
   (let* ((line-beg (point-at-bol))
          (line-end (point-at-eol))
          (beg      line-beg)

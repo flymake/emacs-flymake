@@ -1,0 +1,3 @@
+* flymake.el 0.4.2 (2011-10-16-07:02)
+  Add support for multiple errors in error tooltip. (Contributed by nullie.)
+  Control number of errors in tooltip with flymake-number-of-errors-to-display.

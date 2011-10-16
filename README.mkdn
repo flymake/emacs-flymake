@@ -9,6 +9,7 @@ Features added so far:
  * Support for queuing up syntax checks once a certain number are in-progress.
  * Support for placing temporary files in the system temporary directory.
  * Spawns only one buffer-modification timer check rather than one per buffer.
+ * Show multiple errors in tooltips.
  * Minor other bug fixes.
 
 Queued Syntax Checks
@@ -71,6 +72,20 @@ from a buffer after making changes, the syntax check may not be run until you
 return to the buffer. (The last-modified value is still retained per-buffer
 so the changes will still be detected once you return for long enough for the
 1-second timer to happen.)
+
+Show Multiple Errors In Tooltips
+--------------------------------
+
+The tooltips containing errors can now also be configured to include more
+than one error with the 'flymake-number-of-errors-to-display' variable:
+
+```lisp
+;; I want to see at most the first 4 errors for a line.
+(setq flymake-number-of-errors-to-display 4)
+
+;; I want to see all errors for the line.
+(setq flymake-number-of-errors-to-display nil)
+```
 
 Other Bug Fixes
 ---------------
