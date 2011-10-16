@@ -897,7 +897,7 @@ Perhaps use text from LINE-ERR-INFO-LIST to enhance highlighting."
          (line-end (point-at-eol))
          (beg      line-beg)
          (end      line-end)
-         (tooltip-text (flymake-ler-text (nth 0 line-err-info-list)))
+         (tooltip-text (mapconcat 'flymake-ler-text line-err-info-list "\n"))
          (face     nil))
 
     (goto-char line-beg)
