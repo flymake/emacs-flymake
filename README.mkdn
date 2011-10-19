@@ -10,6 +10,7 @@ Features added so far:
  * Support for placing temporary files in the system temporary directory.
  * Spawns only one buffer-modification timer check rather than one per buffer.
  * Show multiple errors in tooltips.
+ * Improved support for remote files over Tramp.
  * Minor other bug fixes.
 
 Queued Syntax Checks
@@ -86,6 +87,15 @@ than one error with the 'flymake-number-of-errors-to-display' variable:
 ;; I want to see all errors for the line.
 (setq flymake-number-of-errors-to-display nil)
 ```
+
+Improved support for remote files over Tramp
+--------------------------------------------
+
+Flymake has a few odd errors when operating on Tramp files, this version
+fixes some of the errors if you're running with `flymake-run-in-place` set
+to `nil`.
+
+There's still some oddities when `flymake-run-in-place` is set to true.
 
 Other Bug Fixes
 ---------------

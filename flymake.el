@@ -4,7 +4,7 @@
 
 ;; Author:  Pavel Kobyakov <pk_at_work@yahoo.com>
 ;; Maintainer: Sam Graham <libflymake-emacs BLAHBLAH illusori.co.uk>
-;; Version: 0.4.2
+;; Version: 0.4.3
 ;; Keywords: c languages tools
 
 ;; This file is part of GNU Emacs.
@@ -1297,13 +1297,30 @@ complete the `flymake-after-syntax-check-hook' hook will be run."
               (flymake-start-syntax-check-process cmd args dir)))))
       (flymake-queue-syntax-check (current-buffer)))))
 
+(defun flymake-syntax-check-directory (dir)
+  "Try to determine least-broken directory to use as the working directory
+to run the syntax check command from.
+
+If DIR is supplied from the init function for the file type then that will
+be used.
+
+Otherwise if `flymake-run-in-place' is nil and `default-directory' appears
+to be a tramp file, we use `temporary-file-directory' as a least-worst
+compromise to ensure the tempoary flymake copy of the buffer is on the same
+machine as where the syntax check command is being run.
+
+Otherwise we fall through to using `default-directory'."
+  (or dir (if (and (not flymake-run-in-place)
+                   (tramp-tramp-file-p default-directory))
+              temporary-file-directory
+              default-directory)))
+
 (defun flymake-start-syntax-check-process (cmd args dir)
   "Start syntax check process."
     (condition-case err
       (let* ((process
-        (let ((default-directory (or dir default-directory)))
-          (when dir
-            (flymake-log 3 "starting process on dir %s" dir))
+        (let ((default-directory (flymake-syntax-check-directory dir)))
+          (flymake-log 3 "starting process on dir %s" default-directory)
           (apply 'start-file-process "flymake-proc" (current-buffer) cmd args))))
         (set-process-sentinel process 'flymake-process-sentinel)
         (set-process-filter process 'flymake-process-filter)
@@ -1314,9 +1331,8 @@ complete the `flymake-after-syntax-check-hook' hook will be run."
         (setq flymake-check-start-time (flymake-float-time))
 
         (flymake-report-status nil "*")
-        (flymake-log 2 "started process %d, command=%s, dir=%s"
-                     (process-id process) (process-command process)
-                     default-directory)
+        (flymake-log 2 "started process %d, command=%s"
+                     (process-id process) (process-command process))
         process)
       (error
        (let* ((err-str (format "Failed to launch syntax check process '%s' with args %s: %s"

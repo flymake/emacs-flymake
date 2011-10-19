@@ -1,3 +1,7 @@
+* flymake.el 0.4.3 (2011-10-19-20:49)
+  Fix interaction of tramp with flymake-run-in-place set to nil.
+  (Thanks to nullie and dncohen for analysis of the problem and debugging.)
+
 * flymake.el 0.4.2 (2011-10-16-07:02)
   Add support for multiple errors in error tooltip. (Contributed by nullie.)
   Control number of errors in tooltip with flymake-number-of-errors-to-display.
