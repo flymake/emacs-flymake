@@ -1311,6 +1311,8 @@ machine as where the syntax check command is being run.
 
 Otherwise we fall through to using `default-directory'."
   (or dir (if (and (not flymake-run-in-place)
+                   (featurep 'tramp)
+                   tramp-mode
                    (tramp-tramp-file-p default-directory))
               temporary-file-directory
               default-directory)))
