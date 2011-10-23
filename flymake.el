@@ -1324,6 +1324,7 @@ Otherwise we fall through to using `default-directory'."
         (let ((default-directory (flymake-syntax-check-directory dir)))
           (flymake-log 3 "starting process on dir %s" default-directory)
           (apply 'start-file-process "flymake-proc" (current-buffer) cmd args))))
+        (set-process-query-on-exit-flag process nil)
         (set-process-sentinel process 'flymake-process-sentinel)
         (set-process-filter process 'flymake-process-filter)
         (push process flymake-processes)

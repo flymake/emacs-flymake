@@ -1,7 +1,11 @@
+* flymake.el 0.4.4 (candidate)
+  * No longer prompt about running flymake processes when killing buffers.
+    (Karl Chen via http://lists.gnu.org/archive/html/emacs-devel/2010-03/msg01217.html)
+
 * flymake.el 0.4.3 (2011-10-19-20:49)
-  Fix interaction of tramp with flymake-run-in-place set to nil.
-  (Thanks to nullie and dncohen for analysis of the problem and debugging.)
+  * Fix interaction of tramp with flymake-run-in-place set to nil.
+    (Thanks to nullie and dncohen for analysis of the problem and debugging.)
 
 * flymake.el 0.4.2 (2011-10-16-07:02)
-  Add support for multiple errors in error tooltip. (Contributed by nullie.)
-  Control number of errors in tooltip with flymake-number-of-errors-to-display.
+  * Add support for multiple errors in error tooltip. (Contributed by nullie.)
+  * Control number of errors in tooltip with flymake-number-of-errors-to-display.

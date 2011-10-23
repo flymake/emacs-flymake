@@ -107,3 +107,4 @@ Other Bug Fixes
  * Provides hooks so that flymake-cursor doesn't need to wrap our functions.
  * Compile is now clean without warnings.
  * Support for invoking correct perl under perlbrew multiple-installs.
+ * No longer prompt about running flymake processes when killing buffers.
