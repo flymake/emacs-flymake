@@ -13,6 +13,8 @@ Features added so far:
  * Improved support for remote files over Tramp.
  * Minor other bug fixes.
 
+For a full list of changes, please refer to the Changes file.
+
 Queued Syntax Checks
 --------------------
 
