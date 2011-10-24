@@ -318,7 +318,7 @@ are the string substitutions (see `format')."
            (timestamp (concat (format-time-string "%Y-%m-%d %T" time)
                               "."
                               (format "%06d" (third time)))))
-;;      (message "%s" msg)
+      (message "%s" msg)
       (make-directory (file-name-directory flymake-log-file-name) 1)
       (write-region (concat "[" timestamp "] " msg "\n") nil flymake-log-file-name t 566))))
 
