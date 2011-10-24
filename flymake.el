@@ -35,7 +35,9 @@
 
 ;;; Code:
 
+(require 'cc-defs)
 (eval-when-compile (require 'cl))
+(eval-when-compile (require 'tramp))
 (if (featurep 'xemacs) (require 'overlay))
 
 (defvar flymake-is-running nil
@@ -70,6 +72,22 @@
 
 (defcustom flymake-start-syntax-check-on-find-file t
   "Start syntax check on find file."
+  :group 'flymake
+  :type 'boolean)
+
+(defcustom flymake-run-in-place t
+  "If nil, flymake will run on copies in `temporary-file-directory' rather
+than the same directory as the original file.
+
+If the file makes use of relative include paths it's quite possible that
+setting this to nil will cause compilation errors. On the other hand, leaving
+it set to t will trigger any automated file creation detection that is
+watching your project directory. YMMV.
+
+When editing a remote file via Tramp, this flag also has the side-effect of
+determining whether the syntax check is run in the same place as the original
+file (and thus on the remote machine), or in the same place as
+`temporary-file-directory' (usually the local machine)."
   :group 'flymake
   :type 'boolean)
 
@@ -1320,23 +1338,42 @@ Otherwise we fall through to using `default-directory'."
 (defun flymake-start-syntax-check-process (cmd args dir)
   "Start syntax check process."
     (condition-case err
-      (let* ((process
-        (let ((default-directory (flymake-syntax-check-directory dir)))
-          (flymake-log 3 "starting process on dir %s" default-directory)
-          (apply 'start-file-process "flymake-proc" (current-buffer) cmd args))))
-        (set-process-query-on-exit-flag process nil)
-        (set-process-sentinel process 'flymake-process-sentinel)
-        (set-process-filter process 'flymake-process-filter)
-        (push process flymake-processes)
+      ;; Attempt to preserve the buffer against output leaking before the
+      ;; process-filter is set up, this can occur when the process is
+      ;; started over a remote tramp connection.
+      ;; I'm fairly certain this is a bug in `tramp-handle-start-file-process'
+      ;; but I'm damned if I can figure out what, so this is a workaround.
+      (c-save-buffer-state ()
+        (save-excursion
+          (save-restriction
+            (narrow-to-region (point-max) (point-max))
+            ;; For some reason this insert is needed to prevent
+            ;; tramp-mode from inserting any MOTD on the remote
+            ;; machine outside the narrowed region.
+            ;; With this insert it puts the MOTD in the narrowed
+            ;; region and we can delete it safely.
+            ;; Beats me, and I'm not entirely comfortable with it.
+            (insert "\n")
+            (let* ((process
+                      (let ((default-directory (flymake-syntax-check-directory dir)))
+                        (flymake-log 3 "starting process on dir %s" default-directory)
+                        (apply 'start-file-process "flymake-proc" (current-buffer) cmd args))))
+              (set-process-query-on-exit-flag process nil)
+              (set-process-sentinel process 'flymake-process-sentinel)
+              (set-process-filter process 'flymake-process-filter)
+              (push process flymake-processes)
+              ;; Clean up any output that has leaked. Fixes issues with Tramp.
+              ;;(flymake-log 3 "buffer-string %s" (flymake-enquote-log-string (buffer-string)))
+              (delete-region (point-min) (point-max))
 
-        (setq flymake-is-running t)
-        (setq flymake-last-change-time nil)
-        (setq flymake-check-start-time (flymake-float-time))
+              (setq flymake-is-running t)
+              (setq flymake-last-change-time nil)
+              (setq flymake-check-start-time (flymake-float-time))
 
-        (flymake-report-status nil "*")
-        (flymake-log 2 "started process %d, command=%s"
-                     (process-id process) (process-command process))
-        process)
+              (flymake-report-status nil "*")
+              (flymake-log 2 "started process %d, command=%s"
+                (process-id process) (process-command process))
+              process))))
       (error
        (let* ((err-str (format "Failed to launch syntax check process '%s' with args %s: %s"
                                cmd args (error-message-string err)))
@@ -1625,15 +1662,6 @@ The hook `flymake-goto-error-hook' is run after moving to the new position."
     string))
 
 ;;;; general init-cleanup and helper routines
-(defcustom flymake-run-in-place t
-  "If nil, flymake will run on copies in `temporary-file-directory' rather than the same directory as the original file.
-
-   If the file makes use of relative include paths it's quite possible that setting this to nil
-   will cause compilation errors. On the other hand, leaving it set to t will trigger any
-   automated file creation detection that is watching your project directory. YMMV."
-  :group 'flymake
-  :type 'boolean)
-
 (defun flymake-create-temp-copy (file-name prefix)
   "Make a temporary copy of FILE-NAME.
 

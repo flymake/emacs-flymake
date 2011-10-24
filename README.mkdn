@@ -94,10 +94,27 @@ Improved support for remote files over Tramp
 --------------------------------------------
 
 Flymake has a few odd errors when operating on Tramp files, this version
-fixes some of the errors if you're running with `flymake-run-in-place` set
-to `nil`.
+fixes bypasses most of the errors if you're running with
+`flymake-run-in-place` set to `nil`. This ensures that the syntax
+check is run in `temporary-file-directory`, which is probably the
+local machine rather than the remote.
 
-There's still some oddities when `flymake-run-in-place` is set to true.
+If `flymake-run-in-place` is set to `t` things are a little more
+complicated: the syntax check will be run in the same directory
+as the original file, this (usually) means that it will run in a
+shell on the remote machine.
+
+Flymake attempts to cope with this gracefully, but there's a couple
+of odd behaviours in Tramp which make this difficult:
+
+ * Tramp places the contents of the remote shell login message
+   at the end of the buffer being syntax-checked.
+   This version of Flymake takes steps to prevent this from
+   modifying the buffer in any way.
+ * If the syntax-check command to run is not found on the remote
+   machine, the command process just hangs and never completes.
+   At the moment Flymake has no special handling of this situation
+   and it will mean that the syntax check never appears to finish.
 
 Other Bug Fixes
 ---------------
