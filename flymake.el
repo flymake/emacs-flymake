@@ -691,6 +691,7 @@ It's flymake process filter."
     (let* ((exit-status       (process-exit-status process))
            (command           (process-command process))
            (source-buffer     (process-buffer process))
+           (tramp-verbose     -1)
            (cleanup-f         (flymake-get-cleanup-function (buffer-file-name source-buffer))))
 
       (flymake-log 2 "process %d exited with code %d"
@@ -1302,6 +1303,7 @@ complete the `flymake-after-syntax-check-hook' hook will be run."
         (let* ((source-file-name  buffer-file-name)
                (init-f (flymake-get-init-function source-file-name))
                (cleanup-f (flymake-get-cleanup-function source-file-name))
+               (tramp-verbose -1)
                (cmd-and-args (funcall init-f))
                (cmd          (nth 0 cmd-and-args))
                (args         (nth 1 cmd-and-args))
@@ -1354,7 +1356,8 @@ Otherwise we fall through to using `default-directory'."
             ;; region and we can delete it safely.
             ;; Beats me, and I'm not entirely comfortable with it.
             (insert "\n")
-            (let* ((process
+            (let* ((tramp-verbose -1)
+                   (process
                       (let ((default-directory (flymake-syntax-check-directory dir)))
                         (flymake-log 3 "starting process on dir %s" default-directory)
                         (apply 'start-file-process "flymake-proc" (current-buffer) cmd args))))
@@ -1378,7 +1381,8 @@ Otherwise we fall through to using `default-directory'."
        (let* ((err-str (format "Failed to launch syntax check process '%s' with args %s: %s"
                                cmd args (error-message-string err)))
               (source-file-name buffer-file-name)
-              (cleanup-f        (flymake-get-cleanup-function source-file-name)))
+              (cleanup-f        (flymake-get-cleanup-function source-file-name))
+              (tramp-verbose -1))
          (flymake-log 0 err-str)
          (funcall cleanup-f)
          (flymake-report-fatal-status "PROCERR" err-str)))))

@@ -3,6 +3,8 @@
     (Karl Chen via http://lists.gnu.org/archive/html/emacs-devel/2010-03/msg01217.html)
   * Attempt to prevent MOTD/login message from remote Tramp syntax checks
     appearing at the end of the buffer being syntax-checked.
+  * Suppress Tramp message-area spam during remote syntax checks.
+  * Enable flymake logging to message area again.
 
 * flymake.el 0.4.3 (2011-10-19-20:49)
   * Fix interaction of tramp with flymake-run-in-place set to nil.
