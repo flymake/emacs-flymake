@@ -1,3 +1,6 @@
+* flymake.el 0.4.5 (candidate)
+  * Use butlast for error truncation rather than messing with car/cdr directly.
+
 * flymake.el 0.4.4 (2011-11-01-21:37)
   * No longer prompt about running flymake processes when killing buffers.
     (Karl Chen via http://lists.gnu.org/archive/html/emacs-devel/2010-03/msg01217.html)

@@ -921,8 +921,7 @@ Perhaps use text from LINE-ERR-INFO-LIST to enhance highlighting."
   (forward-line (1- line-no))
   (when (and flymake-number-of-errors-to-display
              (> (length line-err-info-list) flymake-number-of-errors-to-display))
-    (setq line-err-info-list (copy-sequence line-err-info-list))
-    (setcdr (nthcdr (- flymake-number-of-errors-to-display 1) line-err-info-list) nil))
+    (setq line-err-info-list (butlast line-err-info-list (- (length line-err-info-list) flymake-number-of-errors-to-display))))
   (let* ((line-beg (point-at-bol))
          (line-end (point-at-eol))
          (beg      line-beg)
