@@ -1,5 +1,6 @@
 * flymake.el 0.4.5 (candidate)
   * Use butlast for error truncation rather than messing with car/cdr directly.
+  * Clarify use of $PERLBREW_ROOT to detect if perlbrew sync is required.
 
 * flymake.el 0.4.4 (2011-11-01-21:37)
   * No longer prompt about running flymake processes when killing buffers.

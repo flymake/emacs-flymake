@@ -1950,7 +1950,11 @@ Use CREATE-TEMP-F for creating temp copy."
 ;;;; perl-specific init-cleanup routines
 (defun flymake-perlbrew-path-sync ()
   "Sync $PATH in the environment of the current Emacs process with modifications
-made by perlbrew in other shell processes."
+made by perlbrew in other shell processes.
+
+Detection of perlbrew relies on $PERLBREW_ROOT being set in the environment, if
+you're using a GUI-launched Emacs such as Emacs.app then you may need to take
+steps to set this manually."
   (when (getenv "PERLBREW_ROOT")
     ;; This is pretty ugly, we need to run a bash intepreter, source
     ;; the perlbrew path hacking, then echo the modified path.
