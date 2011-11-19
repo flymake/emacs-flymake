@@ -733,22 +733,23 @@ It's flymake process filter."
          flymake-err-info 1 (flymake-count-lines)))
   (flymake-delete-own-overlays)
   (flymake-highlight-err-lines flymake-err-info)
-  (let (err-count warn-count)
+  (let (err-count warn-count info-count)
     (setq err-count (flymake-get-err-count flymake-err-info "e"))
     (setq warn-count  (flymake-get-err-count flymake-err-info "w"))
-    (flymake-log 2 "%s: %d error(s), %d warning(s) in %.2f second(s)"
-                 (buffer-name) err-count warn-count
+    (setq info-count  (flymake-get-err-count flymake-err-info "i"))
+    (flymake-log 2 "%s: %d error(s), %d warning(s), %d info in %.2f second(s)"
+                 (buffer-name) err-count warn-count info-count
                  (- (flymake-float-time) flymake-check-start-time))
     (setq flymake-check-start-time nil)
 
-    (if (and (equal 0 err-count) (equal 0 warn-count))
+    (if (and (equal 0 err-count) (equal 0 warn-count) (equal 0 info-count))
         (if (equal 0 exit-status)
             (flymake-report-status "" "")        ; PASSED
           (if (not flymake-check-was-interrupted)
               (flymake-report-fatal-status "CFGERR"
                                            (format "Configuration error has occurred while running %s" command))
             (flymake-report-status nil ""))) ; "STOPPED"
-      (flymake-report-status (format "%d/%d" err-count warn-count) "")))
+      (flymake-report-status (format "%d/%d/%d" err-count warn-count info-count) "")))
   (run-hooks 'flymake-after-syntax-check-hook))
 
 (defun flymake-parse-output-and-residual (output)
@@ -810,7 +811,7 @@ It's flymake process filter."
 
 (defun flymake-get-line-err-count (line-err-info-list type)
   "Return number of errors of specified TYPE.
-Value of TYPE is either \"e\" or \"w\"."
+Value of TYPE is either \"e\", \"w\" or \"i\"."
   (let* ((idx        0)
          (count      (length line-err-info-list))
          (err-count  0))
@@ -907,6 +908,13 @@ Return t if it has at least one flymake overlay, nil if no overlay."
   "Face used for marking warning lines."
   :group 'flymake)
 
+(defface flymake-infoline
+  '((((class color) (background dark)) (:background "DarkGreen"))
+    (((class color) (background light)) (:background "LightGreen"))
+    (t (:bold t)))
+  "Face used for marking info lines."
+  :group 'flymake)
+
 (defcustom flymake-number-of-errors-to-display 1
   "Number of flymake errors to display in the tooltip if there are more than one.
 
@@ -951,8 +959,10 @@ Perhaps use text from LINE-ERR-INFO-LIST to enhance highlighting."
       (setq end (point)))
 
     (if (> (flymake-get-line-err-count line-err-info-list "e") 0)
-        (setq face 'flymake-errline)
-      (setq face 'flymake-warnline))
+      (setq face 'flymake-errline)
+      (if (> (flymake-get-line-err-count line-err-info-list "w") 0)
+        (setq face 'flymake-warnline)
+        (setq face 'flymake-infoline)))
 
     (flymake-make-overlay beg end tooltip-text face nil)))
 
@@ -1058,6 +1068,16 @@ from compile.el")
 ;;   :type '(repeat (string number number number))
 ;;)
 
+(defcustom flymake-warn-line-regexp "^[wW]arning"
+  "Regexp pattern for detecting if an error line is of class \"warning\" rather than \"error\"."
+  :group 'flymake
+  :type 'string)
+
+(defcustom flymake-info-line-regexp "^[iI]nfo"
+  "Regexp pattern for detecting if an error line is of class \"info\" rather than \"error\"."
+  :group 'flymake
+  :type 'string)
+
 (defun flymake-parse-line (line)
   "Parse LINE to see if it is an error or warning.
 Return its components if so, nil otherwise."
@@ -1078,14 +1098,16 @@ Return its components if so, nil otherwise."
                                   (match-string (nth 4 (car patterns)) line)
                                 (flymake-patch-err-text (substring line (match-end 0)))))
           (or err-text (setq err-text "<no error text>"))
-          (if (and err-text (string-match "^[wW]arning" err-text))
+          (if (and err-text (string-match flymake-warn-line-regexp err-text))
             (setq err-type "w"))
-          (flymake-log 3 "parse line: file-idx=%s line-idx=%s file=%s line=%s text=%s" file-idx line-idx
-                       raw-file-name line-no err-text)
+          (if (and err-text (string-match flymake-info-line-regexp err-text))
+            (setq err-type "i"))
+          (flymake-log 3 "parse line: type=%s file-idx=%s line-idx=%s file=%s line=%s text=%s"
+            err-type file-idx line-idx raw-file-name line-no err-text)
           (setq matched t)))
       (setq patterns (cdr patterns)))
     (if matched
-        (flymake-ler-make-ler raw-file-name line-no err-type err-text)
+      (flymake-ler-make-ler raw-file-name line-no err-type err-text)
       ())))
 
 (defun flymake-find-err-info (err-info-list line-no)
@@ -1473,9 +1495,10 @@ Otherwise we fall through to using `default-directory'."
           (setq count (1- count)))
         (flymake-log 3 "created menu-items with %d item(s)" (length menu-items))))
     (if menu-items
-        (let* ((menu-title  (format "Line %d: %d error(s), %d warning(s)" line-no
+        (let* ((menu-title  (format "Line %d: %d error(s), %d warning(s), %d info" line-no
                                     (flymake-get-line-err-count line-err-info-list "e")
-                                    (flymake-get-line-err-count line-err-info-list "w"))))
+                                    (flymake-get-line-err-count line-err-info-list "w")
+                                    (flymake-get-line-err-count line-err-info-list "i"))))
           (list menu-title menu-items))
       nil)))
 

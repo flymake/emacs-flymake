@@ -11,11 +11,12 @@ Features added so far:
  * Spawns only one buffer-modification timer check rather than one per buffer.
  * Show multiple errors in tooltips.
  * Improved support for remote files over Tramp.
+ * Improved error message classification. (err/warn/info, customizable regexp)
  * Minor other bug fixes.
 
 For a full list of changes, please refer to the Changes file.
 
-Queued Syntax Checks
+Queued syntax checks
 --------------------
 
 If you use desktop.el with hundreds of buffers open you've probably had
@@ -37,7 +38,7 @@ the limit entirely with the 'flymake-max-parallel-syntax-checks' variable.
 (setq flymake-max-parallel-syntax-checks nil)
 ```
 
-Use The System Temporary Directory For Temp Files
+Use the system temporary directory for temp files
 -------------------------------------------------
 
 By default Flymake creates a temporary copy of the file being inspected
@@ -59,7 +60,7 @@ Now you can toggle between the two behaviours with the
 (setq temporary-file-directory "~/.emacs.d/tmp/")
 ```
 
-One Buffer Modification Timer Check
+One buffer modification timer check
 -----------------------------------
 
 Again, if you have multiple hundreds of buffers open, original Flymake would
@@ -76,7 +77,7 @@ return to the buffer. (The last-modified value is still retained per-buffer
 so the changes will still be detected once you return for long enough for the
 1-second timer to happen.)
 
-Show Multiple Errors In Tooltips
+Show multiple errors in tooltips
 --------------------------------
 
 The tooltips containing errors can now also be configured to include more
@@ -116,7 +117,19 @@ of odd behaviours in Tramp which make this difficult:
    At the moment Flymake has no special handling of this situation
    and it will mean that the syntax check never appears to finish.
 
-Other Bug Fixes
+Improved error message classification
+-------------------------------------
+
+Error messages from the syntax checker can now be classed as info
+messages in addition or error and warning, and there's a new face
+to highlight info messages in: `flymake-infoline`.
+
+In addition, the separation of errors into err/warn/info is now
+handled by the customizable regexps: `flymake-warn-line-regexp`
+and `flymake-info-line-regexp`. The default fall-through if neither
+regexp matches is still to classify the message as an error.
+
+Other bug fixes
 ---------------
 
  * Logging no longer errors.
