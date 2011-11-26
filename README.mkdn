@@ -12,6 +12,7 @@ Features added so far:
  * Show multiple errors in tooltips.
  * Improved support for remote files over Tramp.
  * Improved error message classification. (err/warn/info, customizable regexp)
+ * Support for Javascript errors using JSHint.
  * Minor other bug fixes.
 
 For a full list of changes, please refer to the Changes file.
@@ -128,6 +129,15 @@ In addition, the separation of errors into err/warn/info is now
 handled by the customizable regexps: `flymake-warn-line-regexp`
 and `flymake-info-line-regexp`. The default fall-through if neither
 regexp matches is still to classify the message as an error.
+
+Support for Javascript errors using JSHint
+------------------------------------------
+
+Javascript support has been added by running JSHint if it's available.
+
+There's a number of other good ways of hooking up Javascript support
+out there, this is by no means the most complete and awesome
+implementation, but it's pretty simple to get running.
 
 Other bug fixes
 ---------------

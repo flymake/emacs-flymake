@@ -4,7 +4,7 @@
 
 ;; Author:  Pavel Kobyakov <pk_at_work@yahoo.com>
 ;; Maintainer: Sam Graham <libflymake-emacs BLAHBLAH illusori.co.uk>
-;; Version: 0.4.4
+;; Version: 0.4.5
 ;; Keywords: c languages tools
 
 ;; This file is part of GNU Emacs.
@@ -353,6 +353,7 @@ are the string substitutions (see `format')."
     ("\\.cs\\'" flymake-simple-make-init)
     ("\\.p[ml]\\'" flymake-perl-init)
     ("\\.php[345]?\\'" flymake-php-init)
+    ("\\.js\\'" flymake-javascript-init)
     ("\\.h\\'" flymake-master-make-header-init flymake-master-cleanup)
     ("\\.java\\'" flymake-simple-make-java-init flymake-simple-java-cleanup)
     ("[0-9]+\\.tex\\'" flymake-master-tex-init flymake-master-cleanup)
@@ -1041,6 +1042,8 @@ Convert it to flymake internal format."
      ("\\(.*\\) at \\([^ \n]+\\) line \\([0-9]+\\)[,.\n]" 2 3 nil 1)
      ;; PHP
      ("\\(?:Parse\\|Fatal\\) error: \\(.*\\) in \\(.*\\) on line \\([0-9]+\\)" 2 3 nil 1)
+     ;; JSHint
+     ("\\(.+\\): line \\([0-9]+\\), col \\([0-9]+\\), \\(.+\\)" 1 2 3 4)
      ;; LaTeX warnings (fileless) ("\\(LaTeX \\(Warning\\|Error\\): .*\\) on input line \\([0-9]+\\)" 20 3 nil 1)
      ;; gcc after 4.5 (includes column number)
      (" *\\(\\([a-zA-Z]:\\)?[^:(\t\n]+\\)\:\\([0-9]+\\)\:\\([0-9]+\\)\:[ \t\n]*\\(.+\\)"
@@ -2010,6 +2013,15 @@ steps to set this manually."
                        temp-file
                        (file-name-directory buffer-file-name))))
     (list "php" (list "-f" local-file "-l"))))
+
+;;;; javascript-specific init-cleanup routines
+(defun flymake-javascript-init ()
+  (let* ((temp-file   (flymake-init-create-temp-buffer-copy
+                       'flymake-create-temp-copy))
+         (local-file  (file-relative-name
+                       temp-file
+                       (file-name-directory buffer-file-name))))
+    (list "jshint" (list local-file))))
 
 ;;;; tex-specific init-cleanup routines
 (defun flymake-get-tex-args (file-name)

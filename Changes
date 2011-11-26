@@ -1,9 +1,10 @@
-* flymake.el 0.4.5 (candidate)
+* flymake.el 0.4.5 (2011-11-26-19:28)
   * Use butlast for error truncation rather than messing with car/cdr directly.
   * Clarify use of $PERLBREW_ROOT to detect if perlbrew sync is required.
   * Add support for info class error messages.
     (Inspired by https://github.com/gabrielelanaro/emacs-for-python/)
   * Customizable error-message classification regexps.
+  * Add support for Javascript errors with jshint.
 
 * flymake.el 0.4.4 (2011-11-01-21:37)
   * No longer prompt about running flymake processes when killing buffers.
