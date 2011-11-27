@@ -354,6 +354,7 @@ are the string substitutions (see `format')."
     ("\\.p[ml]\\'" flymake-perl-init)
     ("\\.php[345]?\\'" flymake-php-init)
     ("\\.js\\'" flymake-javascript-init)
+    ("\\.css\\'" flymake-css-init)
     ("\\.h\\'" flymake-master-make-header-init flymake-master-cleanup)
     ("\\.java\\'" flymake-simple-make-java-init flymake-simple-java-cleanup)
     ("[0-9]+\\.tex\\'" flymake-master-tex-init flymake-master-cleanup)
@@ -1042,7 +1043,7 @@ Convert it to flymake internal format."
      ("\\(.*\\) at \\([^ \n]+\\) line \\([0-9]+\\)[,.\n]" 2 3 nil 1)
      ;; PHP
      ("\\(?:Parse\\|Fatal\\) error: \\(.*\\) in \\(.*\\) on line \\([0-9]+\\)" 2 3 nil 1)
-     ;; JSHint
+     ;; JSHint/CSSLint
      ("\\(.+\\): line \\([0-9]+\\), col \\([0-9]+\\), \\(.+\\)" 1 2 3 4)
      ;; LaTeX warnings (fileless) ("\\(LaTeX \\(Warning\\|Error\\): .*\\) on input line \\([0-9]+\\)" 20 3 nil 1)
      ;; gcc after 4.5 (includes column number)
@@ -2022,6 +2023,15 @@ steps to set this manually."
                        temp-file
                        (file-name-directory buffer-file-name))))
     (list "jshint" (list local-file))))
+
+;;;; css-specific init-cleanup routines
+(defun flymake-css-init ()
+  (let* ((temp-file   (flymake-init-create-temp-buffer-copy
+                       'flymake-create-temp-copy))
+         (local-file  (file-relative-name
+                       temp-file
+                       (file-name-directory buffer-file-name))))
+    (list "csslint" (list "--format=compact" local-file))))
 
 ;;;; tex-specific init-cleanup routines
 (defun flymake-get-tex-args (file-name)
