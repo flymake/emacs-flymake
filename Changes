@@ -1,5 +1,6 @@
 * flymake.el 0.4.6 (candidate)
   * Add support for csslint.
+  * Update DOCSTRING for the various temp filename functions.
 
 * flymake.el 0.4.5 (2011-11-26-19:28)
   * Use butlast for error truncation rather than messing with car/cdr directly.

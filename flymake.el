@@ -1692,16 +1692,31 @@ The hook `flymake-goto-error-hook' is run after moving to the new position."
     string))
 
 ;;;; general init-cleanup and helper routines
+;; TODO: rename these to something sane and deprecate the current names.
 (defun flymake-create-temp-copy (file-name prefix)
-  "Make a temporary copy of FILE-NAME.
+  "Make filename for a temporary copy of FILE-NAME.
 
-   If `flymake-run-in-place' is true it will use `flymake-create-temp-inplace',
-   otherwise it will use `flymake-create-temp-intemp'."
+If `flymake-run-in-place' is true it will use `flymake-create-temp-inplace',
+otherwise it will use `flymake-create-temp-intemp'.
+
+Note that this function, despite its name, does not actually create a
+copy of the file: it only choses and returns a filename for the temp
+copy."
   (if flymake-run-in-place
     (flymake-create-temp-inplace file-name prefix)
     (flymake-create-temp-intemp file-name prefix)))
 
 (defun flymake-create-temp-inplace (file-name prefix)
+    "Return filename in the same directory as FILE-NAME for a
+temporary copy of the buffer editing FILE-NAME.
+
+Despite the name of the argument, PREFIX will be appended to the
+filename as a suffix to ensure we don't overwrite the original.
+This usually defaults to \"flymake\".
+
+Note that this function, despite its name, does not actually create a
+copy of the file: it only choses and returns a filename for the temp
+copy."
   (unless (stringp file-name)
     (error "Invalid file-name"))
   (or prefix
@@ -1718,18 +1733,22 @@ The hook `flymake-goto-error-hook' is run after moving to the new position."
 ;; I got it from http://blog.urth.org/2011/06/flymake-versus-the-catalyst-restarter.html
 ;; but Dave Rolsky indicates he got it from elsewhere.
 (defun flymake-create-temp-intemp (file-name prefix)
-    "Return filename in temporary directory for checking
-     FILE-NAME. This is a replacement for
-     `flymake-create-temp-inplace'. The difference is that it gives
-     a file name in `temporary-file-directory' instead of the same
-     directory as FILE-NAME.
+    "Return filename in temporary directory for a temporary
+copy of the buffer editing FILE-NAME. This is a replacement for
+`flymake-create-temp-inplace'. The difference is that it gives
+a file name in `temporary-file-directory' instead of the same
+directory as FILE-NAME.
 
-     For the use of PREFIX see that function.
+For the use of PREFIX see that function.
 
-     Note that not making the temporary file in another directory
-     \(like here) will not work if the file you are checking depends
-     relative paths to other files \(for the type of checks flymake
-     makes)."
+Note that not making the temporary file in another directory
+\(like here) will not work if the file you are checking depends
+relative paths to other files \(for the type of checks flymake
+makes).
+
+Note that this function, despite its name, does not actually create a
+copy of the file: it only choses and returns a filename for the temp
+copy."
     (unless (stringp file-name)
       (error "Invalid file-name"))
     (or prefix
