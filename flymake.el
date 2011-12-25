@@ -1733,7 +1733,7 @@ copy."
 ;; I got it from http://blog.urth.org/2011/06/flymake-versus-the-catalyst-restarter.html
 ;; but Dave Rolsky indicates he got it from elsewhere.
 (defun flymake-create-temp-intemp (file-name prefix)
-    "Return filename in temporary directory for a temporary
+  "Return filename in temporary directory for a temporary
 copy of the buffer editing FILE-NAME. This is a replacement for
 `flymake-create-temp-inplace'. The difference is that it gives
 a file name in `temporary-file-directory' instead of the same
@@ -1749,17 +1749,16 @@ makes).
 Note that this function, despite its name, does not actually create a
 copy of the file: it only choses and returns a filename for the temp
 copy."
-    (unless (stringp file-name)
-      (error "Invalid file-name"))
-    (or prefix
-      (setq prefix "flymake"))
-    (let* ((name (concat
-                  (file-name-nondirectory
-                   (file-name-sans-extension file-name))
-                  "_" prefix))
-           (ext  (concat "." (file-name-extension file-name)))
-           (temp-name (make-temp-file name nil ext)))
-      (flymake-log 3 "create-temp-intemp: file=%s temp=%s" file-name temp-name)
+  (unless (stringp file-name)
+    (error "Invalid file-name"))
+  (or prefix
+    (setq prefix "flymake"))
+  (let* ((name (concat
+                 (file-name-nondirectory (file-name-sans-extension file-name))
+                 "_" prefix))
+         (ext  (concat "." (file-name-extension file-name)))
+         (temp-name (make-temp-file name nil ext)))
+    (flymake-log 3 "create-temp-intemp: file=%s temp=%s" file-name temp-name)
       temp-name))
 
 (defun flymake-create-temp-with-folder-structure (file-name prefix)
