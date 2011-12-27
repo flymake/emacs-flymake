@@ -2015,14 +2015,43 @@ steps to set this manually."
             (setenv "PATH" modified-path))
           (flymake-log 1 "Unable to parse perlbrew $PATH output \"%s\"" raw-modified-path))))))
 
+(defcustom flymake-perl-lib-dir nil
+  "Path to override Flymake's attempt to find the Perl include dir
+for a project with `flumale-find-perl-lib-dir`."
+  :group 'flymake
+  :type 'string)
+
+(defun flymake-find-perl-lib-dir (source-dir)
+  "Look for a directory to push onto the Perl include directories with
+the -I option.
+
+Looks up the directory tree from the source file for a directory containing
+either a \"Makefile.PL\" or a \"Build.PL\" file, or a directory named \"lib\",
+then uses the \"lib\" subdirectory of that project directory.
+
+Alternatively you may override this behaviour by customizing the
+`flymake-perl-lib-dir` variable to give the exact directory name you
+wish to have supplied to Perl -I."
+  (or
+    flymake-perl-lib-dir
+    (let ((project-root-dir
+            (or (flymake-find-buildfile "Makefile.PL" source-dir)
+                (flymake-find-buildfile "Build.PL" source-dir)
+                (flymake-find-buildfile "lib" source-dir))))
+      (when project-root-dir
+        (concat project-root-dir "lib")))))
+
 (defun flymake-perl-init ()
   (let* ((temp-file   (flymake-init-create-temp-buffer-copy
                        'flymake-create-temp-copy))
          (local-file  (file-relative-name
                        temp-file
-                       (file-name-directory buffer-file-name))))
+                       (file-name-directory buffer-file-name)))
+         (include-dir (flymake-find-perl-lib-dir buffer-file-name)))
     (flymake-perlbrew-path-sync)
-    (list "perl" (list "-wc " local-file))))
+    (if include-dir
+      (list "perl" (list "-wc" "-I" (expand-file-name include-dir) local-file))
+      (list "perl" (list "-wc" local-file)))))
 
 ;;;; php-specific init-cleanup routines
 (defun flymake-php-init ()
