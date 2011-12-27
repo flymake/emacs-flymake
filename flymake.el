@@ -2039,7 +2039,7 @@ wish to have supplied to Perl -I."
                 (flymake-find-buildfile "Build.PL" source-dir)
                 (flymake-find-buildfile "lib" source-dir))))
       (when project-root-dir
-        (concat project-root-dir "lib")))))
+        (expand-file-name (concat project-root-dir "lib"))))))
 
 (defun flymake-perl-init ()
   (let* ((temp-file   (flymake-init-create-temp-buffer-copy
@@ -2050,7 +2050,7 @@ wish to have supplied to Perl -I."
          (include-dir (flymake-find-perl-lib-dir buffer-file-name)))
     (flymake-perlbrew-path-sync)
     (if include-dir
-      (list "perl" (list "-wc" "-I" (expand-file-name include-dir) local-file))
+      (list "perl" (list "-wc" "-I" include-dir local-file))
       (list "perl" (list "-wc" local-file)))))
 
 ;;;; php-specific init-cleanup routines
