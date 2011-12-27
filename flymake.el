@@ -1777,14 +1777,16 @@ copy."
 
 (defun flymake-delete-temp-directory (dir-name)
   "Attempt to delete temp dir created by `flymake-create-temp-with-folder-structure', do not fail on error."
-  (let* ((temp-dir    (flymake-get-temp-dir))
-         (suffix      (substring dir-name (1+ (length temp-dir)))))
+  (let* ((dir-name (file-truename dir-name))
+         (temp-dir (file-truename (flymake-get-temp-dir)))
+         (suffix   (substring dir-name (length temp-dir))))
 
     (while (> (length suffix) 0)
       (setq suffix (directory-file-name suffix))
-      ;;+(flymake-log 0 "suffix=%s" suffix)
+      ;;(flymake-log 0 "suffix=%s" suffix)
+      ;;(flymake-log 0 "delete=%s" (file-truename (expand-file-name suffix temp-dir)))
       (flymake-safe-delete-directory
-       (file-truename (expand-file-name suffix temp-dir)))
+        (file-truename (expand-file-name suffix temp-dir)))
       (setq suffix (file-name-directory suffix)))))
 
 (defvar flymake-temp-source-file-name nil)

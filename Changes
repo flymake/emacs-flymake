@@ -2,6 +2,7 @@
   * Add support for csslint.
   * Update DOCSTRING for the various temp filename functions.
   * Attempt to find Perl project include dir if it's in a standard place.
+  * Fix temp-dir prefix stripping in flymake-delete-temp-directory.
 
 * flymake.el 0.4.5 (2011-11-26-19:28)
   * Use butlast for error truncation rather than messing with car/cdr directly.
