@@ -2019,7 +2019,7 @@ steps to set this manually."
 
 (defcustom flymake-perl-lib-dir nil
   "Path to override Flymake's attempt to find the Perl include dir
-for a project with `flumale-find-perl-lib-dir`."
+for a project with `flymake-find-perl-lib-dir`."
   :group 'flymake
   :type 'string)
 
@@ -2035,7 +2035,7 @@ Alternatively you may override this behaviour by customizing the
 `flymake-perl-lib-dir` variable to give the exact directory name you
 wish to have supplied to Perl -I."
   (or
-    flymake-perl-lib-dir
+    (if flymake-perl-lib-dir (expand-file-name flymake-perl-lib-dir))
     (let ((project-root-dir
             (or (flymake-find-buildfile "Makefile.PL" source-dir)
                 (flymake-find-buildfile "Build.PL" source-dir)
