@@ -2051,9 +2051,10 @@ wish to have supplied to Perl -I."
                        (file-name-directory buffer-file-name)))
          (include-dir (flymake-find-perl-lib-dir buffer-file-name)))
     (flymake-perlbrew-path-sync)
-    (if include-dir
-      (list "perl" (list "-wc" "-I" include-dir local-file))
-      (list "perl" (list "-wc" local-file)))))
+    (list "perl" (append
+      (list "-wc")
+      (if include-dir (list "-I" include-dir))
+      (list local-file)))))
 
 ;;;; php-specific init-cleanup routines
 (defun flymake-php-init ()
