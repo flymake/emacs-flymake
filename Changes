@@ -1,4 +1,4 @@
-* flymake.el 0.4.6 (candidate)
+* flymake.el 0.4.6 (2012-01-01-09:25)
   * Add support for csslint.
   * Update DOCSTRING for the various temp filename functions.
   * Attempt to find Perl project include dir if it's in a standard place.
