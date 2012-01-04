@@ -360,6 +360,7 @@ are the string substitutions (see `format')."
     ("[0-9]+\\.tex\\'" flymake-master-tex-init flymake-master-cleanup)
     ("\\.tex\\'" flymake-simple-tex-init)
     ("\\.idl\\'" flymake-simple-make-init)
+    ("\\.spec\\'" flymake-specfile-init)
     ;; ("\\.cpp\\'" 1)
     ;; ("\\.java\\'" 3)
     ;; ("\\.h\\'" 2 ("\\.cpp\\'" "\\.c\\'")
@@ -1049,6 +1050,8 @@ Convert it to flymake internal format."
      ;; gcc after 4.5 (includes column number)
      (" *\\(\\([a-zA-Z]:\\)?[^:(\t\n]+\\)\:\\([0-9]+\\)\:\\([0-9]+\\)\:[ \t\n]*\\(.+\\)"
       2 3 4 5)
+     ;; rpm spec files via rpmlint
+     ("^\\(.*\\):\\([0-9]+\\): \\(.*\\)$" 1 2 nil 3)
      ;; ant/javac, also matches gcc prior to 4.5
      (" *\\(\\[javac\\] *\\)?\\(\\([a-zA-Z]:\\)?[^:(\t\n]+\\)\:\\([0-9]+\\)\:[ \t\n]*\\(.+\\)"
       2 4 nil 5))
@@ -2082,6 +2085,15 @@ wish to have supplied to Perl -I."
                        temp-file
                        (file-name-directory buffer-file-name))))
     (list "csslint" (list "--format=compact" local-file))))
+
+;; rpm spec files with rpmlint
+(defun flymake-specfile-init ()
+    (let* ((temp-file (flymake-init-create-temp-buffer-copy
+                       'flymake-create-temp-copy))
+           (local-file (file-relative-name
+                        temp-file
+                        (file-name-directory buffer-file-name))))
+      (list "rpmlint" (list local-file))))
 
 ;;;; tex-specific init-cleanup routines
 (defun flymake-get-tex-args (file-name)
