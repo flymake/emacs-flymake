@@ -1050,8 +1050,6 @@ Convert it to flymake internal format."
      ;; gcc after 4.5 (includes column number)
      (" *\\(\\([a-zA-Z]:\\)?[^:(\t\n]+\\)\:\\([0-9]+\\)\:\\([0-9]+\\)\:[ \t\n]*\\(.+\\)"
       2 3 4 5)
-     ;; rpm spec files via rpmlint
-     ("^\\(.*\\):\\([0-9]+\\): \\(.*\\)$" 1 2 nil 3)
      ;; ant/javac, also matches gcc prior to 4.5
      (" *\\(\\[javac\\] *\\)?\\(\\([a-zA-Z]:\\)?[^:(\t\n]+\\)\:\\([0-9]+\\)\:[ \t\n]*\\(.+\\)"
       2 4 nil 5))
