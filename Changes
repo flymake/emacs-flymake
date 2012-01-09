@@ -1,3 +1,6 @@
+* flymake.el 0.4.7 (candidate)
+  * Add support for rpm specfiles with rpmlint. (Contributed by Adrian Likins.)
+
 * flymake.el 0.4.6 (2012-01-01-09:25)
   * Add support for csslint.
   * Update DOCSTRING for the various temp filename functions.

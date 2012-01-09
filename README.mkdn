@@ -146,6 +146,8 @@ CSS support has been added by running CSSLint if it's available:
 
   npm -g install csslint
 
+RPM Specfile support has been added by running rpmlint if it's available.
+
 Other bug fixes
 ---------------
 
