@@ -361,6 +361,7 @@ are the string substitutions (see `format')."
     ("\\.tex\\'" flymake-simple-tex-init)
     ("\\.idl\\'" flymake-simple-make-init)
     ("\\.spec\\'" flymake-specfile-init)
+    ("\\.po\\'" flymake-pofile-init)
     ;; ("\\.cpp\\'" 1)
     ;; ("\\.java\\'" 3)
     ;; ("\\.h\\'" 2 ("\\.cpp\\'" "\\.c\\'")
@@ -2092,6 +2093,16 @@ wish to have supplied to Perl -I."
                         temp-file
                         (file-name-directory buffer-file-name))))
       (list "rpmlint" (list local-file))))
+
+;; check po files with msgfmt -c
+(defun flymake-pofile-init ()
+    (let* ((temp-file (flymake-init-create-temp-buffer-copy
+                       'flymake-create-temp-copy))
+           (local-file (file-relative-name
+                        temp-file
+                        (file-name-directory buffer-file-name))))
+      (list "msgfmt" (list "-c" local-file))))
+
 
 ;;;; tex-specific init-cleanup routines
 (defun flymake-get-tex-args (file-name)
