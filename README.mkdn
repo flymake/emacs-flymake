@@ -6,14 +6,14 @@ play around with some updates before contributing them upstream.
 
 Features added so far:
 
- * Support for queuing up syntax checks once a certain number are in-progress.
- * Support for placing temporary files in the system temporary directory.
- * Spawns only one buffer-modification timer check rather than one per buffer.
- * Show multiple errors in tooltips.
- * Improved support for remote files over Tramp.
- * Improved error message classification. (err/warn/info, customizable regexp)
- * Support for new languages: Javascript and CSS.
- * Minor other bug fixes.
+  * Support for queuing up syntax checks once a certain number are in-progress.
+  * Support for placing temporary files in the system temporary directory.
+  * Spawns only one buffer-modification timer check rather than one per buffer.
+  * Show multiple errors in tooltips.
+  * Improved support for remote files over Tramp.
+  * Improved error message classification. (err/warn/info, customizable regexp)
+  * Support for new languages: Javascript and CSS.
+  * Minor other bug fixes.
 
 For a full list of changes, please refer to the Changes file.
 
@@ -109,14 +109,14 @@ shell on the remote machine.
 Flymake attempts to cope with this gracefully, but there's a couple
 of odd behaviours in Tramp which make this difficult:
 
- * Tramp places the contents of the remote shell login message
-   at the end of the buffer being syntax-checked.
-   This version of Flymake takes steps to prevent this from
-   modifying the buffer in any way.
- * If the syntax-check command to run is not found on the remote
-   machine, the command process just hangs and never completes.
-   At the moment Flymake has no special handling of this situation
-   and it will mean that the syntax check never appears to finish.
+  * Tramp places the contents of the remote shell login message
+    at the end of the buffer being syntax-checked.
+    This version of Flymake takes steps to prevent this from
+    modifying the buffer in any way.
+  * If the syntax-check command to run is not found on the remote
+    machine, the command process just hangs and never completes.
+    At the moment Flymake has no special handling of this situation
+    and it will mean that the syntax check never appears to finish.
 
 Improved error message classification
 -------------------------------------
@@ -133,31 +133,28 @@ regexp matches is still to classify the message as an error.
 Support for new languages
 -------------------------
 
- * Javascript support has been added by running JSHint if it's available.
+  * Javascript support has been added by running JSHint if it's available.
 
-   There's a number of other good ways of hooking up Javascript support
-   out there, this is by no means the most complete and awesome
-   implementation, but it's pretty simple to get running if you have
-   node.js and npm installed:
+    There's a number of other good ways of hooking up Javascript support
+    out there, this is by no means the most complete and awesome
+    implementation, but it's pretty simple to get running if you have
+    node.js and npm installed:
 
-     npm -g install jshint
+        npm -g install jshint
+  * CSS support has been added by running CSSLint if it's available:
 
- * CSS support has been added by running CSSLint if it's available:
-
-     npm -g install csslint
-
- * RPM Specfile support has been added by running rpmlint if it's available.
-
- * gettext() .po file support has been provided by msgfmt if it's available.
+        npm -g install csslint
+  * RPM Specfile support has been added by running rpmlint if it's available.
+  * gettext() .po file support has been provided by msgfmt if it's available.
 
 Other bug fixes
 ---------------
 
- * Logging no longer errors.
- * Log files are now proper logs rather than last-message-only.
- * Log files now have timestamps to help debugging where time is going.
- * You can customize where the log is created with flymake-log-file-name.
- * Provides hooks so that flymake-cursor doesn't need to wrap our functions.
- * Compile is now clean without warnings.
- * Support for invoking correct perl under perlbrew multiple-installs.
- * No longer prompt about running flymake processes when killing buffers.
+  * Logging no longer errors.
+  * Log files are now proper logs rather than last-message-only.
+  * Log files now have timestamps to help debugging where time is going.
+  * You can customize where the log is created with flymake-log-file-name.
+  * Provides hooks so that flymake-cursor doesn't need to wrap our functions.
+  * Compile is now clean without warnings.
+  * Support for invoking correct perl under perlbrew multiple-installs.
+  * No longer prompt about running flymake processes when killing buffers.
