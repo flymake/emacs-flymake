@@ -133,20 +133,22 @@ regexp matches is still to classify the message as an error.
 Support for new languages
 -------------------------
 
-Javascript support has been added by running JSHint if it's available.
+ * Javascript support has been added by running JSHint if it's available.
 
-There's a number of other good ways of hooking up Javascript support
-out there, this is by no means the most complete and awesome
-implementation, but it's pretty simple to get running if you have
-node.js and npm installed:
+   There's a number of other good ways of hooking up Javascript support
+   out there, this is by no means the most complete and awesome
+   implementation, but it's pretty simple to get running if you have
+   node.js and npm installed:
 
-  npm -g install jshint
+     npm -g install jshint
 
-CSS support has been added by running CSSLint if it's available:
+ * CSS support has been added by running CSSLint if it's available:
 
-  npm -g install csslint
+     npm -g install csslint
 
-RPM Specfile support has been added by running rpmlint if it's available.
+ * RPM Specfile support has been added by running rpmlint if it's available.
+
+ * gettext() .po file support has been provided by msgfmt if it's available.
 
 Other bug fixes
 ---------------

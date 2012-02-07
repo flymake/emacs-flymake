@@ -1,5 +1,6 @@
-* flymake.el 0.4.7 (candidate)
+* flymake.el 0.4.7 (2012-02-07-09:15)
   * Add support for rpm specfiles with rpmlint. (Contributed by Adrian Likins.)
+  * Add support for gettext po files with msgfmt. (Contributed by Adrian Likins.)
 
 * flymake.el 0.4.6 (2012-01-01-09:25)
   * Add support for csslint.
