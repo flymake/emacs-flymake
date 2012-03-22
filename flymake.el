@@ -1,10 +1,10 @@
 ;;; flymake.el --- a universal on-the-fly syntax checker
 
-;; Copyright (C) 2003-2012  Free Software Foundation, Inc.
+;; Copyright (C) 2003-2012 Free Software Foundation, Inc.
 
 ;; Author:  Pavel Kobyakov <pk_at_work@yahoo.com>
 ;; Maintainer: Sam Graham <libflymake-emacs BLAHBLAH illusori.co.uk>
-;; Version: 0.4.7
+;; Version: 0.4.8
 ;; Keywords: c languages tools
 
 ;; This file is part of GNU Emacs.
@@ -93,9 +93,10 @@ file (and thus on the remote machine), or in the same place as
 
 ;;;###autoload
 (define-minor-mode flymake-mode
-  "Minor mode to do on-the-fly syntax checking.
-When called interactively, toggles the minor mode.
-With arg, turn Flymake mode on if and only if arg is positive."
+  "Toggle on-the-fly syntax checking.
+With a prefix argument ARG, enable the mode if ARG is positive,
+and disable it otherwise.  If called from Lisp, enable the mode
+if ARG is omitted or nil."
   :group 'flymake :lighter flymake-mode-line
   (cond
 

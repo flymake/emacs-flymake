@@ -1,3 +1,8 @@
+* flymake.el 0.4.8 (2012-03-22-07:47)
+  * Merge in upstream changes from GNU Emacs version.
+    * Doc fixes for minor-mode: http://bzr.savannah.gnu.org/lh/emacs/trunk/revision/107172.
+  * No functional changes.
+
 * flymake.el 0.4.7 (2012-02-07-09:15)
   * Add support for rpm specfiles with rpmlint. (Contributed by Adrian Likins.)
   * Add support for gettext po files with msgfmt. (Contributed by Adrian Likins.)
