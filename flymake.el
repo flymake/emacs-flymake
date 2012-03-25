@@ -1760,7 +1760,7 @@ copy."
                  (file-name-nondirectory (file-name-sans-extension file-name))
                  "_" prefix))
          (ext  (concat "." (file-name-extension file-name)))
-         (temp-name (make-temp-file name nil ext)))
+         (temp-name (file-truename (make-temp-file name nil ext))))
     (flymake-log 3 "create-temp-intemp: file=%s temp=%s" file-name temp-name)
       temp-name))
 
