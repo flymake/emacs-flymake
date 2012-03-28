@@ -1,3 +1,7 @@
+* flymake.el 0.4.9 (2012-03-28-06:22)
+  * Use file-truename to ensure tempfile names are in normal form.
+    (Contributed by arnested.)
+
 * flymake.el 0.4.8 (2012-03-22-07:47)
   * Merge in upstream changes from GNU Emacs version.
     * Doc fixes for minor-mode: http://bzr.savannah.gnu.org/lh/emacs/trunk/revision/107172.
