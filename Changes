@@ -1,6 +1,10 @@
+* flymake.el 0.4.10 (2012-05-23-14:50)
+  * Fix error regexp for gcc 4.5+ on windows.
+    (Contributed by @abbec.)
+
 * flymake.el 0.4.9 (2012-03-28-06:22)
   * Use file-truename to ensure tempfile names are in normal form.
-    (Contributed by arnested.)
+    (Contributed by @arnested.)
 
 * flymake.el 0.4.8 (2012-03-22-07:47)
   * Merge in upstream changes from GNU Emacs version.
@@ -35,7 +39,7 @@
 
 * flymake.el 0.4.3 (2011-10-19-20:49)
   * Fix interaction of tramp with flymake-run-in-place set to nil.
-    (Thanks to nullie and dncohen for analysis of the problem and debugging.)
+    (Thanks to @nullie and @dncohen for analysis of the problem and debugging.)
 
 * flymake.el 0.4.2 (2011-10-16-07:02)
   * Add support for multiple errors in error tooltip. (Contributed by nullie.)
