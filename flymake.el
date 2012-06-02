@@ -4,7 +4,7 @@
 
 ;; Author:  Pavel Kobyakov <pk_at_work@yahoo.com>
 ;; Maintainer: Sam Graham <libflymake-emacs BLAHBLAH illusori.co.uk>
-;; Version: 0.4.10
+;; Version: 0.4.11
 ;; Keywords: c languages tools
 
 ;; This file is part of GNU Emacs.
@@ -61,6 +61,10 @@
 (defvar flymake-check-was-interrupted nil
   "Non-nil if syntax check was killed by `flymake-compile'.")
 (make-variable-buffer-local 'flymake-check-was-interrupted)
+
+(defvar flymake-check-should-restart nil
+  "Non-nil if syntax check should restart after terminating.")
+(make-variable-buffer-local 'flymake-check-should-restart)
 
 (defvar flymake-err-info nil
   "Sorted list of line numbers and lists of err info in the form (file, err-text).")
@@ -716,7 +720,10 @@ It's flymake process filter."
 
                 (flymake-parse-residual)
                 (flymake-post-syntax-check exit-status command)
-                (setq flymake-is-running nil))))
+                (setq flymake-is-running nil)
+                (when flymake-check-should-restart
+                  (flymake-log 2 "restarting syntax check")
+                  (flymake-start-syntax-check)))))
         (error
          (let ((err-str (format "Error in process sentinel for buffer %s: %s"
                                 source-buffer (error-message-string err))))
@@ -1327,6 +1334,7 @@ complete the `flymake-after-syntax-check-hook' hook will be run."
         (flymake-clear-project-include-dirs-cache)
 
         (setq flymake-check-was-interrupted nil)
+        (setq flymake-check-should-restart nil)
 
         (let* ((source-file-name  buffer-file-name)
                (init-f (flymake-get-init-function source-file-name))
@@ -1424,6 +1432,23 @@ Otherwise we fall through to using `default-directory'."
         (setq flymake-check-was-interrupted t))))
   (flymake-log 1 "killed process %d" (process-id proc)))
 
+(defun flymake-stop-syntax-check (&optional buffer)
+  "Kill any queued or running syntax check for BUFFER.
+Defaults to `current-buffer' if not supplied.
+
+NOTE: Stopping a syntax check will not complete until the spawned process has
+been terminated, this happens asynchronously and it is highly likely that
+immediately after calling `flymake-stop-syntax-check' the process will still
+be running. Among other things, this will prevent starting a new syntax check
+in the buffer until the process terminates. If you want to queue up a new
+syntax check, you should look at `flymake-restart-syntax-check' which handles
+this async delay correctly for you."
+  (interactive)
+  (let ((buffer (or buffer (current-buffer))))
+    (flymake-remove-queued-syntax-check buffer)
+    (dolist (proc flymake-processes)
+      (if (equal (process-buffer proc) buffer) (flymake-kill-process proc)))))
+
 (defun flymake-stop-all-syntax-checks ()
   "Kill all syntax check processes."
   (interactive)
@@ -1431,6 +1456,18 @@ Otherwise we fall through to using `default-directory'."
     (flymake-remove-queued-syntax-check (car flymake-syntax-check-queue)))
   (while flymake-processes
     (flymake-kill-process (pop flymake-processes))))
+
+(defun flymake-restart-syntax-check (&optional buffer)
+  "Kill any queued or running syntax check for BUFFER and start a new one.
+Defaults to `current-buffer' if not supplied."
+  (interactive)
+  (let ((buffer (or buffer (current-buffer))))
+    (flymake-remove-queued-syntax-check buffer)
+    (dolist (proc flymake-processes)
+      (when (equal (process-buffer proc) buffer)
+        (with-current-buffer buffer
+          (setq flymake-check-should-restart t))
+        (flymake-kill-process proc)))))
 
 (defun flymake-compilation-is-running ()
   (and (boundp 'compilation-in-progress)

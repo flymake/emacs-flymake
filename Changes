@@ -1,3 +1,7 @@
+* flymake.el 0.4.11 (2012-06-03-00:29)
+  * Added flymake-stop-syntax-check to stop syntax checks in a single buffer.
+  * Added flymake-restart-syntax-check to stop syntax checks in a single buffer and start new one.
+
 * flymake.el 0.4.10 (2012-05-23-14:50)
   * Fix error regexp for gcc 4.5+ on windows.
     (Contributed by @abbec.)
