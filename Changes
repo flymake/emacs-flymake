@@ -1,3 +1,7 @@
+* flymake.el 0.4.12 (2012-07-23-09:29)
+  * Use file-truename in flymake-create-temp-inplace to ensure tempfile names are in normal form.
+    (Contributed by @arnested.)
+
 * flymake.el 0.4.11 (2012-06-03-00:29)
   * Added flymake-stop-syntax-check to stop syntax checks in a single buffer.
   * Added flymake-restart-syntax-check to stop syntax checks in a single buffer and start new one.
