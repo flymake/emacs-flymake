@@ -1761,10 +1761,10 @@ copy."
     (error "Invalid file-name"))
   (or prefix
       (setq prefix "flymake"))
-  (let* ((temp-name   (concat (file-name-sans-extension file-name)
-                              "_" prefix
-                              (and (file-name-extension file-name)
-                                   (concat "." (file-name-extension file-name))))))
+  (let* ((temp-name (file-truename (concat (file-name-sans-extension file-name)
+                                           "_" prefix
+                                           (and (file-name-extension file-name)
+                                                (concat "." (file-name-extension file-name)))))))
     (flymake-log 3 "create-temp-inplace: file=%s temp=%s" file-name temp-name)
     temp-name))
 
