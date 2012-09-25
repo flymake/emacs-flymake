@@ -2163,7 +2163,7 @@ wish to have supplied to Perl -I."
 
 ;;;; xml-specific init-cleanup routines
 (defun flymake-xml-init ()
-  (list "xmlstarlet" (list "val" (flymake-init-create-temp-buffer-copy 'flymake-create-temp-copy))))
+  (list "xmlstarlet" (list "val" "-e" (flymake-init-create-temp-buffer-copy 'flymake-create-temp-inplace))))
 
 (provide 'flymake)
 
