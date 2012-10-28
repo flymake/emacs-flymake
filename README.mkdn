@@ -158,3 +158,10 @@ Other bug fixes
   * Compile is now clean without warnings.
   * Support for invoking correct perl under perlbrew multiple-installs.
   * No longer prompt about running flymake processes when killing buffers.
+
+Known Issues
+------------
+
+  * Perl syntax checking uses "perl -c", which executes BEGIN blocks, this can
+    be considered a security vulnerability when opening untrusted files.
+    For more information: http://stackoverflow.com/a/12908487/870000
