@@ -1,3 +1,8 @@
+* flymake.el 0.4.13 (2012-10-28-23:19)
+  * Use -e option to xmlstarlet XML validation so that line errors are captured and
+    exit code doesn't disable flymake.
+    (Contributed by @marcinant.)
+
 * flymake.el 0.4.12 (2012-07-23-09:29)
   * Use file-truename in flymake-create-temp-inplace to ensure tempfile names are in normal form.
     (Contributed by @arnested.)

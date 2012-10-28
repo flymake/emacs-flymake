@@ -4,7 +4,7 @@
 
 ;; Author:  Pavel Kobyakov <pk_at_work@yahoo.com>
 ;; Maintainer: Sam Graham <libflymake-emacs BLAHBLAH illusori.co.uk>
-;; Version: 0.4.12
+;; Version: 0.4.13
 ;; Keywords: c languages tools
 
 ;; This file is part of GNU Emacs.
@@ -2163,7 +2163,7 @@ wish to have supplied to Perl -I."
 
 ;;;; xml-specific init-cleanup routines
 (defun flymake-xml-init ()
-  (list "xmlstarlet" (list "val" (flymake-init-create-temp-buffer-copy 'flymake-create-temp-copy))))
+  (list "xmlstarlet" (list "val" "-e" (flymake-init-create-temp-buffer-copy 'flymake-create-temp-copy))))
 
 (provide 'flymake)
 
