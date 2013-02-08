@@ -4,7 +4,7 @@
 
 ;; Author:  Pavel Kobyakov <pk_at_work@yahoo.com>
 ;; Maintainer: Sam Graham <libflymake-emacs BLAHBLAH illusori.co.uk>
-;; Version: 0.4.13
+;; Version: 0.4.14
 ;; Keywords: c languages tools
 
 ;; This file is part of GNU Emacs.
@@ -433,7 +433,7 @@ Return its file name if found, or nil if not found."
   (or (flymake-get-buildfile-from-cache source-dir-name)
       (let* ((file (locate-dominating-file source-dir-name buildfile-name)))
         (if file
-            (progn
+            (let* ((file (file-truename file)))
               (flymake-log 3 "found buildfile at %s" file)
               (flymake-add-buildfile-to-cache source-dir-name file)
               file)
@@ -1853,7 +1853,7 @@ copy."
 (defun flymake-simple-cleanup ()
   "Do cleanup after `flymake-init-create-temp-buffer-copy'.
 Delete temp file."
-  (flymake-safe-delete-file flymake-temp-source-file-name)
+;;  (flymake-safe-delete-file flymake-temp-source-file-name)
   (setq flymake-last-change-time nil))
 
 (defun flymake-get-real-file-name (file-name-from-err-msg)
@@ -1969,7 +1969,7 @@ Return full-name.  Names are real, not patched."
         (list "-s"
               "-C"
               base-dir
-              (concat "CHK_SOURCES=" source)
+              (concat "CHK_SOURCES=" (shell-quote-argument source))
               "SYNTAX_CHECK_MODE=1"
               "check-syntax")))
 
@@ -1977,7 +1977,7 @@ Return full-name.  Names are real, not patched."
   (list "ant"
         (list "-buildfile"
               (concat base-dir "/" "build.xml")
-              (concat "-DCHK_SOURCES=" source)
+              (concat "-DCHK_SOURCES=" (shell-quote-argument source))
               "check-syntax")))
 
 (defun flymake-simple-make-init-impl (create-temp-f use-relative-base-dir use-relative-source build-file-name get-cmdline-f)

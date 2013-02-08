@@ -1,3 +1,6 @@
+* flymake.el 0.4.14 (2013-02-08-20:21)
+  * Properly escape CHK_SOURCES filenames for the shell in C/C++ syntax checkers.
+
 * flymake.el 0.4.13 (2012-10-28-23:19)
   * Use -e option to xmlstarlet XML validation so that line errors are captured and
     exit code doesn't disable flymake.
