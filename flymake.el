@@ -4,7 +4,7 @@
 
 ;; Author:  Pavel Kobyakov <pk_at_work@yahoo.com>
 ;; Maintainer: Sam Graham <libflymake-emacs BLAHBLAH illusori.co.uk>
-;; Version: 0.4.14
+;; Version: 0.4.15
 ;; Keywords: c languages tools
 
 ;; This file is part of GNU Emacs.
@@ -1853,7 +1853,7 @@ copy."
 (defun flymake-simple-cleanup ()
   "Do cleanup after `flymake-init-create-temp-buffer-copy'.
 Delete temp file."
-;;  (flymake-safe-delete-file flymake-temp-source-file-name)
+  (flymake-safe-delete-file flymake-temp-source-file-name)
   (setq flymake-last-change-time nil))
 
 (defun flymake-get-real-file-name (file-name-from-err-msg)
