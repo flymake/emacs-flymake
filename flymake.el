@@ -4,7 +4,7 @@
 
 ;; Author:  Pavel Kobyakov <pk_at_work@yahoo.com>
 ;; Maintainer: Sam Graham <libflymake-emacs BLAHBLAH illusori.co.uk>
-;; Version: 0.4.15
+;; Version: 0.4.16
 ;; Keywords: c languages tools
 
 ;; This file is part of GNU Emacs.
@@ -124,13 +124,14 @@ if ARG is omitted or nil."
                      (not flymake-timer))
             (setq flymake-timer (run-at-time nil 1 'flymake-on-timer-event)))
 
-	  (when (and flymake-start-syntax-check-on-find-file
-		     ;; Since we write temp files in current dir, there's no point
-		     ;; trying if the directory is read-only (bug#8954).
-		     (or (not flymake-run-in-place)
-                         (file-writable-p (file-name-directory buffer-file-name))))
-	    (with-demoted-errors
-	      (flymake-start-syntax-check))))))
+          (when (and flymake-start-syntax-check-on-find-file
+                     ;; Since we write temp files in current dir, there's no point
+                     ;; trying if the directory is read-only (bug#8954).
+                     (or (not flymake-run-in-place)
+                         (file-writable-p (file-name-directory buffer-file-name)))
+                     (file-readable-p (file-name-directory buffer-file-name)))
+            (with-demoted-errors
+              (flymake-start-syntax-check))))))
 
     ;; Turning the mode OFF.
     (t
