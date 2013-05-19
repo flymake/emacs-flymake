@@ -1,3 +1,8 @@
+* flymake.el 0.4.16 (2013-05-19-01:30)
+  * Pull upstream patch for non-writable dirs.
+    (Prodding provided by @rrthomas, patch originally by Stefan Monnier.)
+  * Also don't run on unreadable dirs (ie, before you get chance to M-x make-directory.)
+
 * flymake.el 0.4.15 (2013-02-12-20:02)
   * Remove accidental commit of debugging skip of file cleanup.
 
