@@ -2145,7 +2145,7 @@ wish to have supplied to Perl -I."
            (local-file (file-relative-name
                         temp-file
                         (file-name-directory buffer-file-name))))
-      (list "msgfmt" (list "-c" local-file))))
+      (list "msgfmt" (list "-c" "-o" "/dev/null" local-file))))
 
 
 ;;;; tex-specific init-cleanup routines
