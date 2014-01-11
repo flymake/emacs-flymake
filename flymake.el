@@ -1,6 +1,6 @@
 ;;; flymake.el --- a universal on-the-fly syntax checker
 
-;; Copyright (C) 2003-2012 Free Software Foundation, Inc.
+;; Copyright (C) 2003-2012, 2014 Free Software Foundation, Inc.
 
 ;; Author:  Pavel Kobyakov <pk_at_work@yahoo.com>
 ;; Maintainer: Sam Graham <libflymake-emacs BLAHBLAH illusori.co.uk>
@@ -511,8 +511,8 @@ File contents are not checked."
   "Compare two files specified by FILE-ONE and FILE-TWO.
 This function is used in sort to move most possible file names
 to the beginning of the list (File.h -> File.cpp moved to top)."
-  (and (equal (file-name-sans-extension flymake-included-file-name)
-              (file-name-sans-extension (file-name-nondirectory file-one)))
+  (and (equal (flymake-file-name-sans-extension flymake-included-file-name)
+              (flymake-file-name-sans-extension (file-name-nondirectory file-one)))
        (not (equal file-one file-two))))
 
 (defcustom flymake-check-file-limit 8192
@@ -536,8 +536,8 @@ For example, foo.cpp is a master file if it includes foo.h.
 Whether a buffer for MATER-FILE-NAME exists, use it as a source
 instead of reading master file from disk."
   (let* ((source-file-nondir    (file-name-nondirectory source-file-name))
-         (source-file-extension (file-name-extension source-file-nondir))
-         (source-file-nonext    (file-name-sans-extension source-file-nondir))
+         (source-file-extension (flymake-file-name-extension source-file-nondir))
+         (source-file-nonext    (flymake-file-name-sans-extension source-file-nondir))
          (found                 nil)
          (inc-name              nil)
          (search-limit          flymake-check-file-limit))
@@ -1767,10 +1767,10 @@ copy."
     (error "Invalid file-name"))
   (or prefix
       (setq prefix "flymake"))
-  (let* ((temp-name (file-truename (concat (file-name-sans-extension file-name)
+  (let* ((temp-name (file-truename (concat (flymake-file-name-sans-extension file-name)
                                            "_" prefix
-                                           (and (file-name-extension file-name)
-                                                (concat "." (file-name-extension file-name)))))))
+                                           (and (flymake-file-name-extension file-name)
+                                                (concat "." (flymake-file-name-extension file-name)))))))
     (flymake-log 3 "create-temp-inplace: file=%s temp=%s" file-name temp-name)
     temp-name))
 
@@ -1800,9 +1800,9 @@ copy."
   (or prefix
     (setq prefix "flymake"))
   (let* ((name (concat
-                 (file-name-nondirectory (file-name-sans-extension file-name))
+                 (file-name-nondirectory (flymake-file-name-sans-extension file-name))
                  "_" prefix))
-         (ext  (concat "." (file-name-extension file-name)))
+         (ext  (concat "." (flymake-file-name-extension file-name)))
          (temp-name (file-truename (make-temp-file name nil ext))))
     (flymake-log 3 "create-temp-intemp: file=%s temp=%s" file-name temp-name)
       temp-name))
@@ -2170,6 +2170,47 @@ wish to have supplied to Perl -I."
 ;;;; xml-specific init-cleanup routines
 (defun flymake-xml-init ()
   (list "xmlstarlet" (list "val" "-e" (flymake-init-create-temp-buffer-copy 'flymake-create-temp-copy))))
+
+;;;; file name extension routines
+(defun flymake-file-name-sans-extension (file-name)
+  "Return FILE-NAME sans final \"extension\".
+Use `flymake-allowed-file-name-masks' as basis for finding extension. Fallback to `file-name-sans-extension'.
+
+This allows for more intelligent file name extension handling, i.e. \".tpl.php\" files."
+  (unless (stringp file-name)
+    (error "Invalid file-name"))
+  (let ((fnm flymake-allowed-file-name-masks)
+        (mode-and-masks  nil))
+    (while (and (not mode-and-masks) fnm)
+      (if (string-match (car (car fnm)) file-name)
+          (setq mode-and-masks (car (car fnm))))
+      (setq fnm (cdr fnm)))
+    (if mode-and-masks
+        (replace-regexp-in-string mode-and-masks "" file-name)
+      (file-name-sans-extension file-name))))
+
+(defun flymake-file-name-extension (file-name &optional period)
+  "Return FILE-NAME's final \"extension\".
+Use `flymake-allowed-file-name-masks' as basis for finding extension. Fallback to `file-name-extension'.
+
+If PERIOD is non-nil, then the returned value includes the period
+that delimits the extension, and if FILENAME has no extension,
+the value is \"\".
+
+This allows for more intelligent file name extension handling, i.e. \".tpl.php\" files."
+  (unless (stringp file-name)
+    (error "Invalid file-name"))
+  (let ((fnm flymake-allowed-file-name-masks)
+        (mode-and-masks  nil))
+    (while (and (not mode-and-masks) fnm)
+      (if (string-match (car (car fnm)) file-name)
+          (setq mode-and-masks (car (car fnm))))
+      (setq fnm (cdr fnm)))
+    (if mode-and-masks
+        (if period
+            (match-string 0 file-name)
+          (replace-regexp-in-string "^\\." "" (match-string 0 file-name)))
+      (file-name-extension file-name period))))
 
 (provide 'flymake)
 
