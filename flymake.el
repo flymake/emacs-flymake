@@ -1382,43 +1382,24 @@ Otherwise we fall through to using `default-directory'."
 (defun flymake-start-syntax-check-process (cmd args dir)
   "Start syntax check process."
     (condition-case err
-      ;; Attempt to preserve the buffer against output leaking before the
-      ;; process-filter is set up, this can occur when the process is
-      ;; started over a remote tramp connection.
-      ;; I'm fairly certain this is a bug in `tramp-handle-start-file-process'
-      ;; but I'm damned if I can figure out what, so this is a workaround.
-      (c-save-buffer-state ()
-        (save-excursion
-          (save-restriction
-            (narrow-to-region (point-max) (point-max))
-            ;; For some reason this insert is needed to prevent
-            ;; tramp-mode from inserting any MOTD on the remote
-            ;; machine outside the narrowed region.
-            ;; With this insert it puts the MOTD in the narrowed
-            ;; region and we can delete it safely.
-            ;; Beats me, and I'm not entirely comfortable with it.
-            (insert "\n")
-            (let* ((tramp-verbose -1)
-                   (process
-                      (let ((default-directory (flymake-syntax-check-directory dir)))
-                        (flymake-log 3 "starting process on dir %s" default-directory)
-                        (apply 'start-file-process "flymake-proc" (current-buffer) cmd args))))
-              (set-process-query-on-exit-flag process nil)
-              (set-process-sentinel process 'flymake-process-sentinel)
-              (set-process-filter process 'flymake-process-filter)
-              (push process flymake-processes)
-              ;; Clean up any output that has leaked. Fixes issues with Tramp.
-              ;;(flymake-log 3 "buffer-string %s" (flymake-enquote-log-string (buffer-string)))
-              (delete-region (point-min) (point-max))
+        (let* ((tramp-verbose -1)
+               (process
+                (let ((default-directory (flymake-syntax-check-directory dir)))
+                  (flymake-log 3 "starting process on dir %s" default-directory)
+                  (apply 'start-file-process "flymake-proc" (current-buffer) cmd args))))
+          (set-process-query-on-exit-flag process nil)
+          (set-process-sentinel process 'flymake-process-sentinel)
+          (set-process-filter process 'flymake-process-filter)
+          (push process flymake-processes)
 
-              (setq flymake-is-running t)
-              (setq flymake-last-change-time nil)
-              (setq flymake-check-start-time (flymake-float-time))
+          (setq flymake-is-running t)
+          (setq flymake-last-change-time nil)
+          (setq flymake-check-start-time (flymake-float-time))
 
-              (flymake-report-status nil "*")
-              (flymake-log 2 "started process %d, command=%s"
-                (process-id process) (process-command process))
-              process))))
+          (flymake-report-status nil "*")
+          (flymake-log 2 "started process %d, command=%s"
+                       (process-id process) (process-command process))
+          process)
       (error
        (let* ((err-str (format "Failed to launch syntax check process '%s' with args %s: %s"
                                cmd args (error-message-string err)))
