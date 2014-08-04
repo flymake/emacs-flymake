@@ -1,3 +1,7 @@
+* flymake.el 0.4.17 (2014-08-04-22:39)
+  * Remove problematic TRAMP workaround introduced in 0.4.4.
+    (Patch from @rrthomas)
+
 * flymake.el 0.4.16 (2013-05-19-01:30)
   * Pull upstream patch for non-writable dirs.
     (Prodding provided by @rrthomas, patch originally by Stefan Monnier.)
