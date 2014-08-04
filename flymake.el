@@ -4,7 +4,7 @@
 
 ;; Author:  Pavel Kobyakov <pk_at_work@yahoo.com>
 ;; Maintainer: Sam Graham <libflymake-emacs BLAHBLAH illusori.co.uk>
-;; Version: 0.4.16
+;; Version: 0.4.17
 ;; Keywords: c languages tools
 
 ;; This file is part of GNU Emacs.
