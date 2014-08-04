@@ -106,17 +106,11 @@ complicated: the syntax check will be run in the same directory
 as the original file, this (usually) means that it will run in a
 shell on the remote machine.
 
-Flymake attempts to cope with this gracefully, but there's a couple
-of odd behaviours in Tramp which make this difficult:
-
-  * Tramp places the contents of the remote shell login message
-    at the end of the buffer being syntax-checked.
-    This version of Flymake takes steps to prevent this from
-    modifying the buffer in any way.
-  * If the syntax-check command to run is not found on the remote
-    machine, the command process just hangs and never completes.
-    At the moment Flymake has no special handling of this situation
-    and it will mean that the syntax check never appears to finish.
+Flymake attempts to cope with this gracefully, but if the syntax-check
+command to run is not found on the remote machine, the command process just
+hangs and never completes. At the moment Flymake has no special handling of
+this situation and it will mean that the syntax check appears never to
+finish.
 
 Improved error message classification
 -------------------------------------
