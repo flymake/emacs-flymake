@@ -247,24 +247,19 @@ See `x-popup-menu' for the menu specifier format."
                                  menu-items)))
     (list menu-title (cons "" menu-commands))))
 
-(if (featurep 'xemacs) (progn
-
-                         (defun flymake-nop ())
-
-                         (defun flymake-make-xemacs-menu (menu-data)
-                           "Return a menu specifier using MENU-DATA."
-                           (let* ((menu-title     (nth 0 menu-data))
-                                  (menu-items     (nth 1 menu-data))
-                                  (menu-commands  nil))
-                             (setq menu-commands (mapcar (lambda (foo)
-                                                           (vector (nth 0 foo) (or (nth 1 foo) '(flymake-nop)) t))
-                                                         menu-items))
-                             (cons menu-title menu-commands)))
-
-                         )) ;; xemacs
+;; xemacs
+(when (featurep 'xemacs)
+  (defun flymake-nop ())
+  (defun flymake-make-xemacs-menu (menu-data)
+    "Return a menu specifier using MENU-DATA."
+    (let* ((menu-title (nth 0 menu-data)) (menu-items (nth 1 menu-data))
+           (menu-commands nil))
+      (setq menu-commands (mapcar (lambda (foo)
+                                    (vector (nth 0 foo) (or (nth 1 foo) '(flymake-nop)) t))
+                                  menu-items))
+      (cons menu-title menu-commands))))
 
 (unless (eval-when-compile (fboundp 'posn-at-point))
-
   (defun flymake-current-row ()
     "Return current row number in current frame."
     (if (fboundp 'window-edges)
@@ -291,7 +286,6 @@ See `x-popup-menu' for the menu specifier format."
           (setq ret '(0 0))))
       (flymake-log 3 "mouse pos is %s" ret)
       ret))
-
   ) ;; End of (unless (fboundp 'posn-at-point)
 
 ;;;; ]]
