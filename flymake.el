@@ -104,52 +104,52 @@ if ARG is omitted or nil."
   :group 'flymake :lighter flymake-mode-line
   (cond
 
-    ;; Turning the mode ON.
-    (flymake-mode
-      (cond
-        ((not buffer-file-name)
-         (message "Flymake unable to run without a buffer file name"))
-        ((not (flymake-can-syntax-check-file buffer-file-name))
-          (flymake-log 2 "flymake cannot check syntax in buffer %s" (buffer-name)))
-        (t
-          (setq flymake-buffers (1+ flymake-buffers))
-          (add-hook 'after-change-functions 'flymake-after-change-function nil t)
-          (add-hook 'after-save-hook 'flymake-after-save-hook nil t)
-          (add-hook 'kill-buffer-hook 'flymake-kill-buffer-hook nil t)
-          ;;+(add-hook 'find-file-hook 'flymake-find-file-hook)
+   ;; Turning the mode ON.
+   (flymake-mode
+    (cond
+     ((not buffer-file-name)
+      (message "Flymake unable to run without a buffer file name"))
+     ((not (flymake-can-syntax-check-file buffer-file-name))
+      (flymake-log 2 "flymake cannot check syntax in buffer %s" (buffer-name)))
+     (t
+      (setq flymake-buffers (1+ flymake-buffers))
+      (add-hook 'after-change-functions 'flymake-after-change-function nil t)
+      (add-hook 'after-save-hook 'flymake-after-save-hook nil t)
+      (add-hook 'kill-buffer-hook 'flymake-kill-buffer-hook nil t)
+      ;;+(add-hook 'find-file-hook 'flymake-find-file-hook)
 
-          (flymake-report-status "" "")
+      (flymake-report-status "" "")
 
-          (when (and (> flymake-buffers 0)
-                     (not flymake-timer))
-            (setq flymake-timer (run-at-time nil 1 'flymake-on-timer-event)))
+      (when (and (> flymake-buffers 0)
+                 (not flymake-timer))
+        (setq flymake-timer (run-at-time nil 1 'flymake-on-timer-event)))
 
-          (when (and flymake-start-syntax-check-on-find-file
-                     ;; Since we write temp files in current dir, there's no point
-                     ;; trying if the directory is read-only (bug#8954).
-                     (or (not flymake-run-in-place)
-                         (file-writable-p (file-name-directory buffer-file-name)))
-                     (file-readable-p (file-name-directory buffer-file-name)))
-            (with-demoted-errors
-              (flymake-start-syntax-check))))))
+      (when (and flymake-start-syntax-check-on-find-file
+                 ;; Since we write temp files in current dir, there's no point
+                 ;; trying if the directory is read-only (bug#8954).
+                 (or (not flymake-run-in-place)
+                     (file-writable-p (file-name-directory buffer-file-name)))
+                 (file-readable-p (file-name-directory buffer-file-name)))
+        (with-demoted-errors
+            (flymake-start-syntax-check))))))
 
-    ;; Turning the mode OFF.
-    (t
-      (remove-hook 'after-change-functions 'flymake-after-change-function t)
-      (remove-hook 'after-save-hook 'flymake-after-save-hook t)
-      (remove-hook 'kill-buffer-hook 'flymake-kill-buffer-hook t)
-      ;;+(remove-hook 'find-file-hook (function flymake-find-file-hook) t)
+   ;; Turning the mode OFF.
+   (t
+    (remove-hook 'after-change-functions 'flymake-after-change-function t)
+    (remove-hook 'after-save-hook 'flymake-after-save-hook t)
+    (remove-hook 'kill-buffer-hook 'flymake-kill-buffer-hook t)
+    ;;+(remove-hook 'find-file-hook (function flymake-find-file-hook) t)
 
-      (flymake-delete-own-overlays)
+    (flymake-delete-own-overlays)
 
-      (setq flymake-buffers (1- flymake-buffers))
+    (setq flymake-buffers (1- flymake-buffers))
 
-      (when (and (<= flymake-buffers 0)
-                 flymake-timer)
-        (cancel-timer flymake-timer)
-        (setq flymake-timer nil))
+    (when (and (<= flymake-buffers 0)
+               flymake-timer)
+      (cancel-timer flymake-timer)
+      (setq flymake-timer nil))
 
-      (setq flymake-is-running nil))))
+    (setq flymake-is-running nil))))
 
 ;;;; [[ cross-emacs compatibility routines
 (defsubst flymake-makehash (&optional test)
@@ -249,50 +249,50 @@ See `x-popup-menu' for the menu specifier format."
 
 (if (featurep 'xemacs) (progn
 
-(defun flymake-nop ())
+                         (defun flymake-nop ())
 
-(defun flymake-make-xemacs-menu (menu-data)
-  "Return a menu specifier using MENU-DATA."
-  (let* ((menu-title     (nth 0 menu-data))
-         (menu-items     (nth 1 menu-data))
-         (menu-commands  nil))
-    (setq menu-commands (mapcar (lambda (foo)
-                                  (vector (nth 0 foo) (or (nth 1 foo) '(flymake-nop)) t))
-                                menu-items))
-    (cons menu-title menu-commands)))
+                         (defun flymake-make-xemacs-menu (menu-data)
+                           "Return a menu specifier using MENU-DATA."
+                           (let* ((menu-title     (nth 0 menu-data))
+                                  (menu-items     (nth 1 menu-data))
+                                  (menu-commands  nil))
+                             (setq menu-commands (mapcar (lambda (foo)
+                                                           (vector (nth 0 foo) (or (nth 1 foo) '(flymake-nop)) t))
+                                                         menu-items))
+                             (cons menu-title menu-commands)))
 
-)) ;; xemacs
+                         )) ;; xemacs
 
 (unless (eval-when-compile (fboundp 'posn-at-point))
 
-(defun flymake-current-row ()
-  "Return current row number in current frame."
-  (if (fboundp 'window-edges)
-      (+ (car (cdr (window-edges))) (count-lines (window-start) (point)))
-    (count-lines (window-start) (point))))
+  (defun flymake-current-row ()
+    "Return current row number in current frame."
+    (if (fboundp 'window-edges)
+        (+ (car (cdr (window-edges))) (count-lines (window-start) (point)))
+      (count-lines (window-start) (point))))
 
-(defun flymake-selected-frame ()
-  (if (fboundp 'window-edges)
-      (selected-frame)
-    (selected-window)))
+  (defun flymake-selected-frame ()
+    (if (fboundp 'window-edges)
+        (selected-frame)
+      (selected-window)))
 
-(defun flymake-get-point-pixel-pos ()
-  "Return point position in pixels: (x, y)."
-  (let ((mouse-pos  (mouse-position))
-        (pixel-pos  nil)
-        (ret        nil))
-    (if (car (cdr mouse-pos))
+  (defun flymake-get-point-pixel-pos ()
+    "Return point position in pixels: (x, y)."
+    (let ((mouse-pos  (mouse-position))
+          (pixel-pos  nil)
+          (ret        nil))
+      (if (car (cdr mouse-pos))
+          (progn
+            (set-mouse-position (flymake-selected-frame) (current-column) (flymake-current-row))
+            (setq pixel-pos (mouse-pixel-position))
+            (set-mouse-position (car mouse-pos) (car (cdr mouse-pos)) (cdr (cdr mouse-pos)))
+            (setq ret (list (car (cdr pixel-pos)) (cdr (cdr pixel-pos)))))
         (progn
-          (set-mouse-position (flymake-selected-frame) (current-column) (flymake-current-row))
-          (setq pixel-pos (mouse-pixel-position))
-          (set-mouse-position (car mouse-pos) (car (cdr mouse-pos)) (cdr (cdr mouse-pos)))
-          (setq ret (list (car (cdr pixel-pos)) (cdr (cdr pixel-pos)))))
-      (progn
-        (setq ret '(0 0))))
-    (flymake-log 3 "mouse pos is %s" ret)
-    ret))
+          (setq ret '(0 0))))
+      (flymake-log 3 "mouse pos is %s" ret)
+      ret))
 
-) ;; End of (unless (fboundp 'posn-at-point)
+  ) ;; End of (unless (fboundp 'posn-at-point)
 
 ;;;; ]]
 
@@ -323,15 +323,15 @@ ignored.  Otherwise, it is printed using `message'.
 TEXT is a format control string, and the remaining arguments ARGS
 are the string substitutions (see `format')."
   (if (<= level flymake-log-level)
-    (let* ((msg (apply 'format text args))
-           ;; Surely there's a better way to do this?
-           (time (current-time))
-           (timestamp (concat (format-time-string "%Y-%m-%d %T" time)
-                              "."
-                              (format "%06d" (third time)))))
-      (message "%s" msg)
-      (make-directory (file-name-directory flymake-log-file-name) 1)
-      (write-region (concat "[" timestamp "] " msg "\n") nil flymake-log-file-name t 566))))
+      (let* ((msg (apply 'format text args))
+             ;; Surely there's a better way to do this?
+             (time (current-time))
+             (timestamp (concat (format-time-string "%Y-%m-%d %T" time)
+                                "."
+                                (format "%06d" (third time)))))
+        (message "%s" msg)
+        (make-directory (file-name-directory flymake-log-file-name) 1)
+        (write-region (concat "[" timestamp "] " msg "\n") nil flymake-log-file-name t 566))))
 
 (defun flymake-ins-after (list pos val)
   "Insert VAL into LIST after position POS."
@@ -523,10 +523,10 @@ Nil means search the entire file."
                  (integer :tag "Characters")))
 
 (defun flymake-check-patch-master-file-buffer
-       (master-file-temp-buffer
-        master-file-name patched-master-file-name
-        source-file-name patched-source-file-name
-        include-dirs regexp)
+    (master-file-temp-buffer
+     master-file-name patched-master-file-name
+     source-file-name patched-source-file-name
+     include-dirs regexp)
   "Check if MASTER-FILE-NAME is a master file for SOURCE-FILE-NAME.
 If yes, patch a copy of MASTER-FILE-NAME to include PATCHED-SOURCE-FILE-NAME
 instead of SOURCE-FILE-NAME.
@@ -977,9 +977,9 @@ Perhaps use text from LINE-ERR-INFO-LIST to enhance highlighting."
       (setq end (point)))
 
     (if (> (flymake-get-line-err-count line-err-info-list "e") 0)
-      (setq face 'flymake-errline)
+        (setq face 'flymake-errline)
       (if (> (flymake-get-line-err-count line-err-info-list "w") 0)
-        (setq face 'flymake-warnline)
+          (setq face 'flymake-warnline)
         (setq face 'flymake-infoline)))
 
     (flymake-make-overlay beg end tooltip-text face nil)))
@@ -1119,15 +1119,15 @@ Return its components if so, nil otherwise."
                                 (flymake-patch-err-text (substring line (match-end 0)))))
           (or err-text (setq err-text "<no error text>"))
           (if (and err-text (string-match flymake-warn-line-regexp err-text))
-            (setq err-type "w"))
+              (setq err-type "w"))
           (if (and err-text (string-match flymake-info-line-regexp err-text))
-            (setq err-type "i"))
+              (setq err-type "i"))
           (flymake-log 3 "parse line: type=%s file-idx=%s line-idx=%s file=%s line=%s text=%s"
-            err-type file-idx line-idx raw-file-name line-no err-text)
+                       err-type file-idx line-idx raw-file-name line-no err-text)
           (setq matched t)))
       (setq patterns (cdr patterns)))
     (if matched
-      (flymake-ler-make-ler raw-file-name line-no err-type err-text)
+        (flymake-ler-make-ler raw-file-name line-no err-type err-text)
       ())))
 
 (defun flymake-find-err-info (err-info-list line-no)
@@ -1263,9 +1263,9 @@ For the format of LINE-ERR-INFO, see `flymake-ler-make-ler'."
 
 (defun flymake-safe-delete-directory (dir-name)
   (condition-case nil
-    (progn
-      (delete-directory dir-name)
-      (flymake-log 1 "deleted dir %s" dir-name))
+      (progn
+        (delete-directory dir-name)
+        (flymake-log 1 "deleted dir %s" dir-name))
     (error
      (flymake-log 1 "Failed to delete dir %s, error ignored" dir-name))))
 
@@ -1310,7 +1310,7 @@ For the format of LINE-ERR-INFO, see `flymake-ler-make-ler'."
 (defun flymake-pop-next-live-buffer-in-queue ()
   "Pop the next still-existing buffer from the queue of pending syntax checks."
   (while (and flymake-syntax-check-queue
-           (not (buffer-live-p (car flymake-syntax-check-queue))))
+              (not (buffer-live-p (car flymake-syntax-check-queue))))
     (pop flymake-syntax-check-queue))
   (let ((buffer (pop flymake-syntax-check-queue)))
     (flymake-log 3 "flymake syntax check popped for buffer: %s" buffer)
@@ -1334,29 +1334,29 @@ complete the `flymake-after-syntax-check-hook' hook will be run."
   (when (and (not flymake-is-running)
              (flymake-can-syntax-check-file buffer-file-name))
     (if (flymake-ready-for-next-syntax-check)
-      (when (or (not flymake-compilation-prevents-syntax-check)
-                (not (flymake-compilation-is-running))) ;+ (flymake-rep-ort-status buffer "COMP")
-        (flymake-clear-buildfile-cache)
-        (flymake-clear-project-include-dirs-cache)
+        (when (or (not flymake-compilation-prevents-syntax-check)
+                  (not (flymake-compilation-is-running))) ;+ (flymake-rep-ort-status buffer "COMP")
+          (flymake-clear-buildfile-cache)
+          (flymake-clear-project-include-dirs-cache)
 
-        (setq flymake-check-was-interrupted nil)
-        (setq flymake-check-should-restart nil)
+          (setq flymake-check-was-interrupted nil)
+          (setq flymake-check-should-restart nil)
 
-        (let* ((source-file-name  buffer-file-name)
-               (init-f (flymake-get-init-function source-file-name))
-               (cleanup-f (flymake-get-cleanup-function source-file-name))
-               (tramp-verbose -1)
-               (cmd-and-args (funcall init-f))
-               (cmd          (nth 0 cmd-and-args))
-               (args         (nth 1 cmd-and-args))
-               (dir          (nth 2 cmd-and-args)))
-          (if (not cmd-and-args)
-            (progn
-              (flymake-log 0 "init function %s for %s failed, cleaning up" init-f source-file-name)
-              (funcall cleanup-f))
-            (progn
-              (setq flymake-last-change-time nil)
-              (flymake-start-syntax-check-process cmd args dir)))))
+          (let* ((source-file-name  buffer-file-name)
+                 (init-f (flymake-get-init-function source-file-name))
+                 (cleanup-f (flymake-get-cleanup-function source-file-name))
+                 (tramp-verbose -1)
+                 (cmd-and-args (funcall init-f))
+                 (cmd          (nth 0 cmd-and-args))
+                 (args         (nth 1 cmd-and-args))
+                 (dir          (nth 2 cmd-and-args)))
+            (if (not cmd-and-args)
+                (progn
+                  (flymake-log 0 "init function %s for %s failed, cleaning up" init-f source-file-name)
+                  (funcall cleanup-f))
+              (progn
+                (setq flymake-last-change-time nil)
+                (flymake-start-syntax-check-process cmd args dir)))))
       (flymake-queue-syntax-check (current-buffer)))))
 
 (defun flymake-syntax-check-directory (dir)
@@ -1377,11 +1377,11 @@ Otherwise we fall through to using `default-directory'."
                    tramp-mode
                    (tramp-tramp-file-p default-directory))
               temporary-file-directory
-              default-directory)))
+            default-directory)))
 
 (defun flymake-start-syntax-check-process (cmd args dir)
   "Start syntax check process."
-    (condition-case err
+  (condition-case err
       ;; Attempt to preserve the buffer against output leaking before the
       ;; process-filter is set up, this can occur when the process is
       ;; started over a remote tramp connection.
@@ -1400,9 +1400,9 @@ Otherwise we fall through to using `default-directory'."
             (insert "\n")
             (let* ((tramp-verbose -1)
                    (process
-                      (let ((default-directory (flymake-syntax-check-directory dir)))
-                        (flymake-log 3 "starting process on dir %s" default-directory)
-                        (apply 'start-file-process "flymake-proc" (current-buffer) cmd args))))
+                    (let ((default-directory (flymake-syntax-check-directory dir)))
+                      (flymake-log 3 "starting process on dir %s" default-directory)
+                      (apply 'start-file-process "flymake-proc" (current-buffer) cmd args))))
               (set-process-query-on-exit-flag process nil)
               (set-process-sentinel process 'flymake-process-sentinel)
               (set-process-filter process 'flymake-process-filter)
@@ -1417,17 +1417,17 @@ Otherwise we fall through to using `default-directory'."
 
               (flymake-report-status nil "*")
               (flymake-log 2 "started process %d, command=%s"
-                (process-id process) (process-command process))
+                           (process-id process) (process-command process))
               process))))
-      (error
-       (let* ((err-str (format "Failed to launch syntax check process '%s' with args %s: %s"
-                               cmd args (error-message-string err)))
-              (source-file-name buffer-file-name)
-              (cleanup-f        (flymake-get-cleanup-function source-file-name))
-              (tramp-verbose -1))
-         (flymake-log 0 err-str)
-         (funcall cleanup-f)
-         (flymake-report-fatal-status "PROCERR" err-str)))))
+    (error
+     (let* ((err-str (format "Failed to launch syntax check process '%s' with args %s: %s"
+                             cmd args (error-message-string err)))
+            (source-file-name buffer-file-name)
+            (cleanup-f        (flymake-get-cleanup-function source-file-name))
+            (tramp-verbose -1))
+       (flymake-log 0 err-str)
+       (funcall cleanup-f)
+       (flymake-report-fatal-status "PROCERR" err-str)))))
 
 (defun flymake-kill-process (proc)
   "Kill process PROC."
@@ -1500,7 +1500,7 @@ Defaults to `current-buffer' if not supplied."
 
     (setq flymake-last-change-time nil)
     (flymake-log 3 "starting syntax check as more than %f second(s) passed since last change"
-      flymake-no-changes-timeout)
+                 flymake-no-changes-timeout)
     (flymake-start-syntax-check)))
 
 (defun flymake-current-line-no ()
@@ -1705,7 +1705,7 @@ The hook `flymake-goto-error-hook' is run after moving to the new position."
   (goto-char (point-min))
   (forward-line (1- line-no))
   (if flymake-goto-error-skip-whitespace
-    (flymake-skip-whitespace))
+      (flymake-skip-whitespace))
   (run-hooks 'flymake-goto-error-hook))
 
 (defun flymake-goto-next-error ()
@@ -1749,11 +1749,11 @@ Note that this function, despite its name, does not actually create a
 copy of the file: it only choses and returns a filename for the temp
 copy."
   (if flymake-run-in-place
-    (flymake-create-temp-inplace file-name prefix)
+      (flymake-create-temp-inplace file-name prefix)
     (flymake-create-temp-intemp file-name prefix)))
 
 (defun flymake-create-temp-inplace (file-name prefix)
-    "Return filename in the same directory as FILE-NAME for a
+  "Return filename in the same directory as FILE-NAME for a
 temporary copy of the buffer editing FILE-NAME.
 
 Despite the name of the argument, PREFIX will be appended to the
@@ -1798,14 +1798,14 @@ copy."
   (unless (stringp file-name)
     (error "Invalid file-name"))
   (or prefix
-    (setq prefix "flymake"))
+      (setq prefix "flymake"))
   (let* ((name (concat
-                 (file-name-nondirectory (file-name-sans-extension file-name))
-                 "_" prefix))
+                (file-name-nondirectory (file-name-sans-extension file-name))
+                "_" prefix))
          (ext  (concat "." (file-name-extension file-name)))
          (temp-name (file-truename (make-temp-file name nil ext))))
     (flymake-log 3 "create-temp-intemp: file=%s temp=%s" file-name temp-name)
-      temp-name))
+    temp-name))
 
 (defun flymake-create-temp-with-folder-structure (file-name prefix)
   (unless (stringp file-name)
@@ -1832,7 +1832,7 @@ copy."
       ;;(flymake-log 0 "suffix=%s" suffix)
       ;;(flymake-log 0 "delete=%s" (file-truename (expand-file-name suffix temp-dir)))
       (flymake-safe-delete-directory
-        (file-truename (expand-file-name suffix temp-dir)))
+       (file-truename (expand-file-name suffix temp-dir)))
       (setq suffix (file-name-directory suffix)))))
 
 (defvar flymake-temp-source-file-name nil)
@@ -2001,7 +2001,7 @@ Use CREATE-TEMP-F for creating temp copy."
 
 (defun flymake-simple-make-init ()
   (flymake-simple-make-init-impl 'flymake-create-temp-copy
-    flymake-run-in-place t "Makefile" 'flymake-get-make-cmdline))
+                                 flymake-run-in-place t "Makefile" 'flymake-get-make-cmdline))
 
 (defun flymake-master-make-init (get-incl-dirs-f master-file-masks include-regexp)
   "Create make command line for a source file checked via master file compilation."
@@ -2058,9 +2058,9 @@ steps to set this manually."
       (string-match "PATH=\\(.+\\)$" raw-modified-path)
       (let ((modified-path (match-string 1 raw-modified-path)))
         (if modified-path
-          (progn
-            (flymake-log 2 "Updating $PATH to match perlbrew $PATH: \"%s\"" modified-path)
-            (setenv "PATH" modified-path))
+            (progn
+              (flymake-log 2 "Updating $PATH to match perlbrew $PATH: \"%s\"" modified-path)
+              (setenv "PATH" modified-path))
           (flymake-log 1 "Unable to parse perlbrew $PATH output \"%s\"" raw-modified-path))))))
 
 (defcustom flymake-perl-lib-dir nil
@@ -2081,13 +2081,13 @@ Alternatively you may override this behaviour by customizing the
 `flymake-perl-lib-dir` variable to give the exact directory name you
 wish to have supplied to Perl -I."
   (or
-    (if flymake-perl-lib-dir (expand-file-name flymake-perl-lib-dir))
-    (let ((project-root-dir
-            (or (flymake-find-buildfile "Makefile.PL" source-dir)
-                (flymake-find-buildfile "Build.PL" source-dir)
-                (flymake-find-buildfile "lib" source-dir))))
-      (when project-root-dir
-        (expand-file-name (concat project-root-dir "lib"))))))
+   (if flymake-perl-lib-dir (expand-file-name flymake-perl-lib-dir))
+   (let ((project-root-dir
+          (or (flymake-find-buildfile "Makefile.PL" source-dir)
+              (flymake-find-buildfile "Build.PL" source-dir)
+              (flymake-find-buildfile "lib" source-dir))))
+     (when project-root-dir
+       (expand-file-name (concat project-root-dir "lib"))))))
 
 (defun flymake-perl-init ()
   (let* ((temp-file   (flymake-init-create-temp-buffer-copy
@@ -2098,9 +2098,9 @@ wish to have supplied to Perl -I."
          (include-dir (flymake-find-perl-lib-dir buffer-file-name)))
     (flymake-perlbrew-path-sync)
     (list "perl" (append
-      (list "-wc")
-      (if include-dir (list "-I" include-dir))
-      (list local-file)))))
+                  (list "-wc")
+                  (if include-dir (list "-I" include-dir))
+                  (list local-file)))))
 
 ;;;; php-specific init-cleanup routines
 (defun flymake-php-init ()
@@ -2131,21 +2131,21 @@ wish to have supplied to Perl -I."
 
 ;; rpm spec files with rpmlint
 (defun flymake-specfile-init ()
-    (let* ((temp-file (flymake-init-create-temp-buffer-copy
-                       'flymake-create-temp-copy))
-           (local-file (file-relative-name
-                        temp-file
-                        (file-name-directory buffer-file-name))))
-      (list "rpmlint" (list local-file))))
+  (let* ((temp-file (flymake-init-create-temp-buffer-copy
+                     'flymake-create-temp-copy))
+         (local-file (file-relative-name
+                      temp-file
+                      (file-name-directory buffer-file-name))))
+    (list "rpmlint" (list local-file))))
 
 ;; check po files with msgfmt -c
 (defun flymake-pofile-init ()
-    (let* ((temp-file (flymake-init-create-temp-buffer-copy
-                       'flymake-create-temp-copy))
-           (local-file (file-relative-name
-                        temp-file
-                        (file-name-directory buffer-file-name))))
-      (list "msgfmt" (list "-c" local-file))))
+  (let* ((temp-file (flymake-init-create-temp-buffer-copy
+                     'flymake-create-temp-copy))
+         (local-file (file-relative-name
+                      temp-file
+                      (file-name-directory buffer-file-name))))
+    (list "msgfmt" (list "-c" local-file))))
 
 
 ;;;; tex-specific init-cleanup routines
