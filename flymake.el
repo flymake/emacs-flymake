@@ -4,6 +4,7 @@
 
 ;; Author:  Pavel Kobyakov <pk_at_work@yahoo.com>
 ;; Maintainer: Sam Graham <libflymake-emacs BLAHBLAH illusori.co.uk>
+;;             Jen-Chieh Shen <jcs090218@gmail.com>
 ;; Version: 0.4.16
 ;; Keywords: c languages tools
 
