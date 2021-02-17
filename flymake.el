@@ -360,6 +360,7 @@ are the string substitutions (see `format')."
     ("\\.p[ml]\\'" flymake-perl-init)
     ("\\.php[345]?\\'" flymake-php-init)
     ("\\.js\\'" flymake-javascript-init)
+    ("\\.mjs\\'" flymake-metajs-init)
     ("\\.css\\'" flymake-css-init)
     ("\\.h\\'" flymake-master-make-header-init flymake-master-cleanup)
     ("\\.java\\'" flymake-simple-make-java-init flymake-simple-java-cleanup)
@@ -1056,6 +1057,8 @@ Convert it to flymake internal format."
      ("\\(?:Parse\\|Fatal\\) error: \\(.*\\) in \\(.*\\) on line \\([0-9]+\\)" 2 3 nil 1)
      ;; JSHint/CSSLint
      ("\\(.+\\): line \\([0-9]+\\), col \\([0-9]+\\), \\(.+\\)" 1 2 3 4)
+     ;; MetaJS
+     ("\\(.+\\):\\([0-9]+\\):\\([0-9]+\\) \\(.+\\)" 1 2 3 4)
      ;; LaTeX warnings (fileless) ("\\(LaTeX \\(Warning\\|Error\\): .*\\) on input line \\([0-9]+\\)" 20 3 nil 1)
      ;; gcc after 4.5 (includes column number)
      (" *\\(\\([a-zA-Z]:\\)?[^:(\t\n]+\\)\:\\([0-9]+\\)\:\\([0-9]+\\)\:[ \t\n]*\\(.+\\)"
@@ -2114,6 +2117,15 @@ wish to have supplied to Perl -I."
                        temp-file
                        (file-name-directory buffer-file-name))))
     (list "jshint" (list local-file))))
+
+;;;; metajs-specific init-cleanup routines
+(defun flymake-metajs-init ()
+  (let* ((temp-file   (flymake-init-create-temp-buffer-copy
+                       'flymake-create-temp-copy))
+         (local-file  (file-relative-name
+                       temp-file
+                       (file-name-directory buffer-file-name))))
+    (list "metajs" (list "--lint" local-file))))
 
 ;;;; css-specific init-cleanup routines
 (defun flymake-css-init ()
