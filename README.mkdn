@@ -1,5 +1,10 @@
+[![License: GPL v3](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+[![ELPA](https://elpa.gnu.org/packages/flymake.svg)](https://elpa.gnu.org/packages/flymake.html)
+
 emacs-flymake
 =============
+
+[![CI](https://github.com/flymake/emacs-flymake/actions/workflows/test.yml/badge.svg)](https://github.com/flymake/emacs-flymake/actions/workflows/test.yml)
 
 This project is a fork of Pavel Kobyakov's excellent flymake.el to let me
 play around with some updates before contributing them upstream.
