@@ -1,3 +1,17 @@
-diffs/
+# ignore these directories
+/.git
+/recipes
+/test
 
+# ignore generated files
 *.elc
+
+# eask packages
+.eask/
+dist/
+
+# packaging
+*-autoloads.el
+*-pkg.el
+
+diffs/
