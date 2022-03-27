@@ -5,17 +5,13 @@ EASK ?= eask
 
 TEST-FILES := $(shell ls test/flymake-*.el)
 
-.PHONY: clean checkdoc lint package install compile unix-test
+.PHONY: clean checkdoc lint package install compile test
 
 ci: clean package install compile
 
 package:
 	@echo "Packaging..."
 	$(EASK) package
-
-clean:
-	@echo "Cleaning..."
-	$(EASK) clean-all
 
 install:
 	@echo "Installing..."
@@ -25,10 +21,9 @@ compile:
 	@echo "Compiling..."
 	$(EASK) compile
 
-lint:
-	@echo "Linting..."
-	$(EASK) lint
-
-unix-test:
+test:
 	@echo "Testing..."
 	$(EASK) exec ert-runner -L . $(LOAD-TEST-FILES) -t '!no-win' -t '!org'
+
+clean:
+	rm -rf .cask *.elc
