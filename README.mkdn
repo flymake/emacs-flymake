@@ -6,10 +6,9 @@ emacs-flymake
 
 [![CI](https://github.com/flymake/emacs-flymake/actions/workflows/test.yml/badge.svg)](https://github.com/flymake/emacs-flymake/actions/workflows/test.yml)
 
-This project is a fork of Pavel Kobyakov's excellent flymake.el to let me
-play around with some updates before contributing them upstream.
+This project is a fork of Pavel Kobyakov's excellent flymake.el to let me play around with some updates before contributing them upstream. The fork was started in 2011 from the v0 version, and it has evolved in a different direction compared to the flymake version included in Emacs (v1, as of 2023). These two versions are incompatible and, as of 2023, the Emacs version is maintained more regularly.
 
-Features added so far:
+Features added so far, since version 0.3:
 
   * Support for queuing up syntax checks once a certain number are in-progress.
   * Support for placing temporary files in the system temporary directory.
