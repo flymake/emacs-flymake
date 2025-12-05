@@ -150,6 +150,9 @@ Support for new languages
         npm -g install csslint
   * RPM Specfile support has been added by running rpmlint if it's available.
   * gettext() .po file support has been provided by msgfmt if it's available.
+  * [MetaJS](https://github.com/dogada/metajs) support has been added by running `metajs` if it's available:
+
+        npm -g install metajs
 
 Other bug fixes
 ---------------
