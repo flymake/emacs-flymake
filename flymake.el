@@ -1716,7 +1716,7 @@ The hook `flymake-goto-error-hook' is run after moving to the new position."
       (flymake-log 1 "no errors in current buffer"))))
 
 (defun flymake-goto-prev-error ()
-  "Go to previous error in errror ring.
+  "Go to previous error in error ring.
 The hook `flymake-goto-error-hook' is run after moving to the new position."
   (interactive)
   (let ((line-no (flymake-get-prev-err-line-no flymake-err-info (flymake-current-line-no))))
