@@ -5,7 +5,7 @@
 ;; Author:  Pavel Kobyakov <pk_at_work@yahoo.com>
 ;; Maintainer: Sam Graham <libflymake-emacs BLAHBLAH illusori.co.uk>
 ;;             Jen-Chieh Shen <jcs090218@gmail.com>
-;; Version: 0.4.16
+;; Version: 0.4.17
 ;; Keywords: c languages tools
 
 ;; This file is part of GNU Emacs.
@@ -997,7 +997,8 @@ Perhaps use text from LINE-ERR-INFO-LIST to enhance highlighting."
 
         (when (flymake-same-files real-file-name source-file-name)
           (setq line-err-info (flymake-ler-set-file line-err-info nil))
-          (setq err-info-list (flymake-add-err-info err-info-list line-err-info))))
+          (unless (flymake-err-ignored-p line-err-info)
+            (setq err-info-list (flymake-add-err-info err-info-list line-err-info)))))
       (flymake-log 3 "parsed '%s', %s line-err-info" (nth idx lines) (if line-err-info "got" "no"))
       (setq idx (1+ idx)))
     err-info-list))
@@ -1092,6 +1093,57 @@ from compile.el")
   "Regexp pattern for detecting if an error line is of class \"info\" rather than \"error\"."
   :group 'flymake
   :type 'string)
+
+(defcustom flymake-ignored-err-regexps '()
+  "List of regexp patterns for errors that should be silently ignored.
+Each element is a regexp string matched against the full error text
+reported by the syntax checker.  If any pattern matches, the error
+is not reported by Flymake.
+
+Example: suppress TypeScript type-error codes when using
+`typescript-language-server' with plain JavaScript files:
+
+  (setq flymake-ignored-err-regexps \='(\"TS[0-9]+\"))
+
+This variable may be made buffer-local to apply different filters
+per buffer or major mode:
+
+  (add-hook \='js-mode-hook
+            (lambda ()
+              (setq-local flymake-ignored-err-regexps
+                          \='(\"TS[0-9]+\"))))"
+  :group 'flymake
+  :type '(repeat regexp))
+
+(defcustom flymake-allowed-err-types '("e" "w" "i")
+  "List of error severity codes that Flymake is allowed to display.
+Valid elements are:
+  \"e\" – errors
+  \"w\" – warnings
+  \"i\" – informational messages
+
+Remove an entry to suppress that class of diagnostic globally.
+This variable may also be made buffer-local for per-buffer control.
+
+Example: show only warnings and info, never hard errors:
+
+  (setq flymake-allowed-err-types \='(\"w\" \"i\"))"
+  :group 'flymake
+  :type '(repeat (choice (const :tag "Errors"   "e")
+                         (const :tag "Warnings"  "w")
+                         (const :tag "Info"      "i"))))
+
+(defun flymake-err-ignored-p (line-err-info)
+  "Return non-nil if LINE-ERR-INFO should be suppressed by Flymake.
+An error record is suppressed when either:
+  - Its type code is absent from `flymake-allowed-err-types', or
+  - Its text matches at least one pattern in `flymake-ignored-err-regexps'."
+  (or (not (member (flymake-ler-type line-err-info) flymake-allowed-err-types))
+      (let ((text (or (flymake-ler-text line-err-info) ""))
+            (ignored nil))
+        (dolist (regexp flymake-ignored-err-regexps ignored)
+          (when (string-match regexp text)
+            (setq ignored t))))))
 
 (defun flymake-parse-line (line)
   "Parse LINE to see if it is an error or warning.
